@@ -1,0 +1,9 @@
+version: '3.2'
+
+services:
+  node:
+    build: .docker
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: npm run watch

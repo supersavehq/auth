@@ -1,0 +1,15 @@
+{
+  "extends": "@tsconfig/node14",
+  "compilerOptions": {
+    "target": "ES6",
+    "outDir": "./build",
+    "declaration": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "noImplicitThis": true,
+    "moduleResolution": "node",    
+  },
+  "exclude": ["./tests", "./build"]
+}
