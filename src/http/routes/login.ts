@@ -4,6 +4,7 @@ import { getUserRepository } from '../../db';
 import { LoginResponse, User } from '../../types';
 import { generateTokens, hash } from '../../auth';
 import { SuperSave } from 'supersave';
+import { timeInSeconds } from '../../utils';
 
 const debug = Debug('supersave::auth::login');
 
@@ -42,8 +43,8 @@ export const login = (superSave: SuperSave) =>
 
     const tokens = await generateTokens(superSave, user);
 
-    user.lastLogin = Math.round(new Date().getTime());
-    debug('Updating user lastLogin timestamp %s.', user.lastLogin);
+    user.lastLogin = timeInSeconds();
+    debug('Updating user %s lastLogin timestamp %s.', user.id, user.lastLogin);
     await repository.update(user);
 
     const response: LoginResponse = {

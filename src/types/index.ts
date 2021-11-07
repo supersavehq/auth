@@ -33,3 +33,10 @@ export type RegistrationResponse = {
     refreshToken?: string;
   };
 };
+
+export type RefreshTokenResponse = {
+  data: {
+    success: boolean;
+    accessToken?: string;
+  };
+};

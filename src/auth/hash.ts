@@ -13,6 +13,7 @@ const pbkdf2 = new Pbkdf2(CONFIG);
 
 export async function hash(input: string): Promise<string> {
   return new Promise((resolve, reject) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pbkdf2.hashPassword(input, (err: any, cipherText: string, salt: string) => {
       if (err) {
         reject(err);
