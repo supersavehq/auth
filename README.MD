@@ -3,7 +3,6 @@ supersave-auth
 
 # Majors
 
-- middleware endpoints to ignore
 - supersave hooks
 
 # Todo

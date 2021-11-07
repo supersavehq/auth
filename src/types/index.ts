@@ -51,8 +51,8 @@ export type Config = {
   tokenAlgorithm: string;
   accessTokenExpiration: number;
   refreshTokenExpiration: number;
-  notSecuredEndpoints: string[];
-  securedEndpoints: string[];
+  notSecuredEndpoints: RegExp[];
+  securedEndpoints: RegExp[];
 };
 
 export type ProvidedConfig = Partial<Config>;

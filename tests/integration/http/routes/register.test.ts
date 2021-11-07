@@ -10,7 +10,7 @@ import { getUser } from '../../../utils/fixtures';
 
 describe('register', () => {
   it.each([undefined, 'the name'])(
-    'registers a user',
+    'registers a user with name %s',
     async (name?: string) => {
       const superSave = await getSuperSave();
 

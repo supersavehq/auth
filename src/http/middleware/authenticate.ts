@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Debug from 'debug';
 import { verifyAccessToken } from '../../auth';
 import { ErrorResponse, Config } from '../../types';
+import { isEndpointSecured } from '../../utils';
 
 const debug = Debug('supersave::auth::middleware::authenticate');
 
@@ -11,6 +12,11 @@ export const authenticate = (config: Config) =>
     res: Response,
     next: () => void
   ): Promise<void> {
+    if (!isEndpointSecured(config, req.path)) {
+      next();
+      return;
+    }
+
     const authorization = req.headers['authorization'] ?? null;
     if (!authorization) {
       debug('Authorization header was not set.');

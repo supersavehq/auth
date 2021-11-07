@@ -4,7 +4,7 @@ import { getUser } from '../../../utils/fixtures';
 import { hash } from '../../../../src/auth/hash';
 import { getUserRepository } from '../../../../src/db';
 import { getSuperSave } from '../../../utils/db';
-import { superSaveAuth } from '../../../../build';
+import { superSaveAuth, ProvidedConfig } from '../../../../build';
 
 afterEach(() => jest.useRealTimers());
 
@@ -99,5 +99,79 @@ describe('authenticate', () => {
       .get('/hello')
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(401);
+  });
+});
+
+describe('it allows not secured endpoints', () => {
+  const config: ProvidedConfig = {
+    tokenSecret: 'secure',
+    notSecuredEndpoints: [/^\/hello/],
+  };
+
+  it('allows a request with no token on the allowed endpoint', async () => {
+    const superSave = await getSuperSave();
+
+    const app = express();
+    app.use(express.json());
+    const { router, middleware } = await superSaveAuth(superSave, config);
+    app.use('/', router);
+    app.get('/hello', middleware.authenticate, (_req, res) =>
+      res.send('hi there!')
+    );
+
+    await supertest(app).get('/hello').expect(200);
+  });
+
+  it('blocks requests on not configured endpoints', async () => {
+    const superSave = await getSuperSave();
+
+    const app = express();
+    app.use(express.json());
+    const { router, middleware } = await superSaveAuth(superSave, config);
+    app.use('/', router);
+    app.get('/hello', middleware.authenticate, (_req, res) =>
+      res.send('hi there!')
+    );
+    app.get('/other-endpoint', middleware.authenticate, (_req, res) =>
+      res.send('Will never see this.')
+    );
+
+    await supertest(app).get('/other-endpoint').expect(401);
+  });
+});
+
+describe('it only secures configured endpoints', () => {
+  const config: ProvidedConfig = {
+    tokenSecret: 'secure',
+    securedEndpoints: [/^\/auth\/.*/],
+  };
+
+  it('allows a request with no token end the allowed endpoint', async () => {
+    const superSave = await getSuperSave();
+
+    const app = express();
+    app.use(express.json());
+    const { router, middleware } = await superSaveAuth(superSave, config);
+    app.use('/', middleware.authenticate, router);
+    app.get('/hello', (_req, res) => res.send('hi there!'));
+
+    await supertest(app).get('/hello').expect(200);
+  });
+
+  it('blocks requests on not configured endpoints', async () => {
+    const superSave = await getSuperSave();
+
+    const app = express();
+    app.use(express.json());
+    const { router, middleware } = await superSaveAuth(superSave, config);
+    app.use('/', router);
+    app.get('/hello', middleware.authenticate, (_req, res) =>
+      res.send('hi there!')
+    );
+    app.get('/auth/other-endpoint', middleware.authenticate, (_req, res) =>
+      res.send('Will never see this.')
+    );
+
+    await supertest(app).get('/auth/other-endpoint').expect(401);
   });
 });
