@@ -1,0 +1,66 @@
+import express from 'express';
+import supertest from 'supertest';
+import { getSuperSave } from '../../utils/db';
+import { getRefreshTokenRepository, getUserRepository } from '../../../src/db';
+import { superSaveAuth } from '../../../build';
+import { getUser } from '../../utils/fixtures';
+
+describe('register', () => {
+  it.each([undefined, 'the name'])(
+    'registers a user',
+    async (name?: string) => {
+      const superSave = await getSuperSave();
+
+      const app = express();
+      app.use(express.json());
+      const authRouter = await superSaveAuth(superSave);
+      app.use('/auth', authRouter);
+
+      // Run
+      const request = { email: 'user@example.com', password: 'fastpass', name };
+      const response = await supertest(app)
+        .post('/auth/register')
+        .send(request)
+        .expect('Content-Type', /json/)
+        .expect(200);
+
+      // Assert
+      expect(response.body.data.success).toBe(true);
+      const userRepository = await getUserRepository(superSave);
+      const users = await userRepository.getByQuery(
+        userRepository.createQuery().eq('email', 'user@example.com')
+      );
+      expect(users).toHaveLength(1);
+      expect(users[0].name).toEqual(name);
+
+      const refreshTokenRepository = getRefreshTokenRepository(superSave);
+      const token = await refreshTokenRepository.getById(
+        response.body.data.refreshToken
+      );
+      expect(token).toBeDefined();
+    }
+  );
+
+  it('returns unsuccesful on existing user.', async () => {
+    const superSave = await getSuperSave();
+
+    const userRepository = await getUserRepository(superSave);
+    const user = await userRepository.create(getUser());
+
+    const app = express();
+    app.use(express.json());
+    const authRouter = await superSaveAuth(superSave);
+    app.use('/auth', authRouter);
+
+    // Run
+    const request = { email: user.email, password: 'secret-pass' };
+    const response = await supertest(app)
+      .post('/auth/register')
+      .send(request)
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    // Assert
+    expect(response.body.data.success).toBe(false);
+  });
+});

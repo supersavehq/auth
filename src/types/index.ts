@@ -1,6 +1,6 @@
 export type User = {
   id: string;
-  name: string;
+  name?: string;
   email: string;
   password: string;
   created: number;
@@ -23,4 +23,13 @@ export type RefreshToken = {
   id: string;
   userId: string;
   expiresAt: number;
+};
+
+export type RegistrationResponse = {
+  data: {
+    success: boolean;
+    message?: string;
+    accessToken?: string;
+    refreshToken?: string;
+  };
 };

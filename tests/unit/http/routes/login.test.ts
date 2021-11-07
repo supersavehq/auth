@@ -41,7 +41,7 @@ describe('login', () => {
 
     const handler = login(superSave);
 
-    const request = { body: { email: 'user@example.com', password: 'foobar' }};
+    const request = { body: { email: 'user@example.com', password: 'foobar' } };
     const jsonMock = jest.fn();
     const response = {
       json: jsonMock,
