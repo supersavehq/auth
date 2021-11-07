@@ -1,10 +1,10 @@
 import express from 'express';
 import supertest from 'supertest';
-import { getSuperSave } from '../../utils/db';
-import { getUser } from '../../utils/fixtures';
-import { hash } from '../../../src/auth/hash';
-import { getUserRepository } from '../../../src/db';
-import { superSaveAuth } from '../../../build';
+import { getSuperSave } from '../../../utils/db';
+import { getUser } from '../../../utils/fixtures';
+import { hash } from '../../../../src/auth/hash';
+import { getUserRepository } from '../../../../src/db';
+import { superSaveAuth } from '../../../../build';
 
 describe('login', () => {
   it('fails on non-existing account', async () => {

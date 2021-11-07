@@ -1,9 +1,12 @@
 import express from 'express';
 import supertest from 'supertest';
-import { getSuperSave } from '../../utils/db';
-import { getRefreshTokenRepository, getUserRepository } from '../../../src/db';
-import { superSaveAuth } from '../../../build';
-import { getUser } from '../../utils/fixtures';
+import { getSuperSave } from '../../../utils/db';
+import {
+  getRefreshTokenRepository,
+  getUserRepository,
+} from '../../../../src/db';
+import { superSaveAuth } from '../../../../build';
+import { getUser } from '../../../utils/fixtures';
 
 describe('register', () => {
   it.each([undefined, 'the name'])(

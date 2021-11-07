@@ -1,10 +1,13 @@
 import express from 'express';
 import supertest from 'supertest';
-import { getSuperSave } from '../../utils/db';
-import { getUser } from '../../utils/fixtures';
-import { getRefreshTokenRepository, getUserRepository } from '../../../src/db';
-import { superSaveAuth } from '../../../build';
-import { timeInSeconds } from '../../../src/utils';
+import { getSuperSave } from '../../../utils/db';
+import { getUser } from '../../../utils/fixtures';
+import {
+  getRefreshTokenRepository,
+  getUserRepository,
+} from '../../../../src/db';
+import { superSaveAuth } from '../../../../build';
+import { timeInSeconds } from '../../../../src/utils';
 
 describe('refresh', () => {
   it('returns a new accessToken', async () => {

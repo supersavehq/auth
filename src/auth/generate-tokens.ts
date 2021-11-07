@@ -1,17 +1,10 @@
-import nJwt from 'njwt';
 import { SuperSave } from 'supersave';
 import { getRefreshTokenRepository } from '../db';
 import { User } from '../types';
 import { timeInSeconds } from '../utils';
+import { generateAccessToken } from './generate-access-token';
 import { Tokens } from './types';
 import { randomBytes } from './utils';
-
-export async function generateAccessToken(sub: string): Promise<string> {
-  // TODO secret from config, and expiration
-  const jwt = nJwt.create({ sub }, 'aaa', 'HS512');
-  jwt.setExpiration(new Date().getTime() + 60 * 60 * 1000); // One hour from now
-  return jwt.compact();
-}
 
 export async function generateTokens(
   superSave: SuperSave,

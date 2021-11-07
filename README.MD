@@ -5,7 +5,9 @@ supersave-auth
 
 - token refresh
 - middleware
+    - endpoints to ignore
 - config
+- supersave hooks
 
 # Todo
 

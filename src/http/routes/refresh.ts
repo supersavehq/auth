@@ -4,7 +4,7 @@ import Debug from 'debug';
 import { getRefreshTokenRepository, getUserRepository } from '../../db';
 import { RefreshTokenResponse } from '../../types';
 import { timeInSeconds } from '../../utils';
-import { generateAccessToken } from '../../auth/generate-tokens';
+import { generateAccessToken } from '../../auth';
 
 const debug = Debug('supersave::auth::refresh');
 
