@@ -3,19 +3,19 @@ import { getRefreshTokenRepository } from '../db';
 import { User } from '../types';
 import { timeInSeconds } from '../utils';
 import { generateAccessToken } from './generate-access-token';
-import { Tokens } from './types';
+import { Tokens, Config } from '../types';
 import { randomBytes } from './utils';
 
 export async function generateTokens(
   superSave: SuperSave,
+  config: Config,
   user: User
 ): Promise<Tokens> {
   const refreshToken = (await randomBytes()).toString('hex');
 
   const refreshTokenRepository = getRefreshTokenRepository(superSave);
 
-  // TODO get this from config
-  const expiresAt = timeInSeconds() + 86400;
+  const expiresAt = timeInSeconds() + config.refreshTokenExpiration;
   await refreshTokenRepository.create({
     // @ts-expect-error we are providing an ID, superSave does an omit on that attribute.
     id: refreshToken,
@@ -23,7 +23,7 @@ export async function generateTokens(
     expiresAt,
   });
 
-  const accessToken = await generateAccessToken(user.id);
+  const accessToken = await generateAccessToken(config, user.id);
 
   return {
     refreshToken,

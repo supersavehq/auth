@@ -2,13 +2,13 @@ import { SuperSave } from 'supersave';
 import { Request, Response } from 'express';
 import Debug from 'debug';
 import { getRefreshTokenRepository, getUserRepository } from '../../db';
-import { RefreshTokenResponse } from '../../types';
+import { RefreshTokenResponse, Config } from '../../types';
 import { timeInSeconds } from '../../utils';
 import { generateAccessToken } from '../../auth';
 
 const debug = Debug('supersave::auth::refresh');
 
-export const refresh = (superSave: SuperSave) =>
+export const refresh = (superSave: SuperSave, config: Config) =>
   async function (req: Request, res: Response): Promise<void> {
     if (!req.body || !req.body.token) {
       res.status(400).json({ message: 'No token provided in request.' });
@@ -44,7 +44,7 @@ export const refresh = (superSave: SuperSave) =>
       return;
     }
 
-    const accessToken = await generateAccessToken(user.id);
+    const accessToken = await generateAccessToken(config, user.id);
 
     user.lastLogin = timeInSeconds();
     debug('Updating user lastLogin timestamp %s.', user.lastLogin);

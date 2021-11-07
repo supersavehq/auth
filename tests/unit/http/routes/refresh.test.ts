@@ -8,6 +8,7 @@ import {
   getUserRepository,
 } from '../../../../src/db';
 import { timeInSeconds } from '../../../../src/utils';
+import { getConfig } from '../../../utils/config';
 
 describe('refresh', () => {
   it.each([{}, undefined])(
@@ -15,7 +16,7 @@ describe('refresh', () => {
     async (requestBody) => {
       const superSave = await getSuperSave();
 
-      const handler = refresh(superSave);
+      const handler = refresh(superSave, getConfig());
 
       const request = { body: requestBody };
       const jsonMock = jest.fn();
@@ -41,7 +42,7 @@ describe('refresh', () => {
   it('register a failure if token is not found.', async () => {
     const superSave = await getSuperSave();
 
-    const handler = refresh(superSave);
+    const handler = refresh(superSave, getConfig());
 
     const request = { body: { token: 'aaaa' } };
     const jsonMock = jest.fn();
@@ -68,7 +69,7 @@ describe('refresh', () => {
   it('returns a failure if token is expired.', async () => {
     const superSave = await getSuperSave();
 
-    const handler = refresh(superSave);
+    const handler = refresh(superSave, getConfig());
 
     const refreshTokenRepository = getRefreshTokenRepository(superSave);
     await refreshTokenRepository.create({
@@ -103,7 +104,7 @@ describe('refresh', () => {
   it('returns a failure if user is not found.', async () => {
     const superSave = await getSuperSave();
 
-    const handler = refresh(superSave);
+    const handler = refresh(superSave, getConfig());
 
     const refreshTokenRepository = getRefreshTokenRepository(superSave);
     await refreshTokenRepository.create({
@@ -138,7 +139,7 @@ describe('refresh', () => {
   it('returns success if token was refreshed.', async () => {
     const superSave = await getSuperSave();
 
-    const handler = refresh(superSave);
+    const handler = refresh(superSave, getConfig());
 
     const userRepository = getUserRepository(superSave);
     const user = await userRepository.create(getUser());

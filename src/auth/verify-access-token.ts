@@ -1,9 +1,13 @@
 import nJwt from 'njwt';
+import { Config } from '../types';
 
-export async function verifyAccessToken(token: string): Promise<nJwt.Jwt> {
+export async function verifyAccessToken(
+  config: Config,
+  token: string
+): Promise<nJwt.Jwt> {
   const jwtToken = new nJwt.Verifier()
-    .setSigningAlgorithm('HS512')
-    .setSigningKey('aaa')
+    .setSigningAlgorithm(config.tokenAlgorithm)
+    .setSigningKey(config.tokenSecret)
     .verify(token);
   return jwtToken;
 }

@@ -7,6 +7,7 @@ import {
   getRefreshTokenRepository,
   getUserRepository,
 } from '../../../../src/db';
+import { getConfig } from '../../../utils/config';
 
 describe('register', () => {
   it.each([
@@ -17,7 +18,7 @@ describe('register', () => {
   ])('returns a bad request error', async (requestBody) => {
     const superSave = await getSuperSave();
 
-    const handler = register(superSave);
+    const handler = register(superSave, getConfig());
 
     const request = { body: requestBody };
     const jsonMock = jest.fn();
@@ -43,7 +44,7 @@ describe('register', () => {
   it('fails on existing account', async () => {
     const superSave = await getSuperSave();
 
-    const handler = register(superSave);
+    const handler = register(superSave, getConfig());
 
     const user = getUser();
     const userRepository = getUserRepository(superSave);
@@ -69,7 +70,7 @@ describe('register', () => {
   it('registers a new user and returns tokens', async () => {
     const superSave = await getSuperSave();
 
-    const handler = register(superSave);
+    const handler = register(superSave, getConfig());
 
     const request = { body: { email: 'user@example.com', password: 'foobar' } };
     const jsonMock = jest.fn();

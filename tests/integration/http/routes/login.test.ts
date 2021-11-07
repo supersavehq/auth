@@ -12,8 +12,10 @@ describe('login', () => {
 
     const app = express();
     app.use(express.json());
-    const authRouter = await superSaveAuth(superSave);
-    app.use('/auth', authRouter);
+    const { router } = await superSaveAuth(superSave, {
+      tokenSecret: 'secure',
+    });
+    app.use('/auth', router);
 
     const request = { email: 'user@example.com', password: 'foobar' };
 
@@ -31,8 +33,10 @@ describe('login', () => {
 
     const app = express();
     app.use(express.json());
-    const authRouter = await superSaveAuth(superSave);
-    app.use('/auth', authRouter);
+    const { router } = await superSaveAuth(superSave, {
+      tokenSecret: 'secure',
+    });
+    app.use('/auth', router);
 
     const passwordHash = await hash('password');
     const user = getUser({ password: passwordHash });
@@ -54,8 +58,10 @@ describe('login', () => {
 
     const app = express();
     app.use(express.json());
-    const authRouter = await superSaveAuth(superSave);
-    app.use('/auth', authRouter);
+    const { router } = await superSaveAuth(superSave, {
+      tokenSecret: 'secure',
+    });
+    app.use('/auth', router);
 
     const passwordHash = await hash('password');
     const user = getUser({ password: passwordHash });

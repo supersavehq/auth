@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import Debug from 'debug';
 import { getUserRepository } from '../../db';
-import { LoginResponse, User } from '../../types';
+import { LoginResponse, User, Config } from '../../types';
 import { generateTokens, hash } from '../../auth';
 import { SuperSave } from 'supersave';
 import { timeInSeconds } from '../../utils';
 
 const debug = Debug('supersave::auth::login');
 
-export const login = (superSave: SuperSave) =>
+export const login = (superSave: SuperSave, config: Config) =>
   async function (req: Request, res: Response): Promise<void> {
     const repository = getUserRepository(superSave);
 
@@ -41,7 +41,7 @@ export const login = (superSave: SuperSave) =>
       return;
     }
 
-    const tokens = await generateTokens(superSave, user);
+    const tokens = await generateTokens(superSave, config, user);
 
     user.lastLogin = timeInSeconds();
     debug('Updating user %s lastLogin timestamp %s.', user.id, user.lastLogin);

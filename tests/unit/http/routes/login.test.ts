@@ -5,6 +5,7 @@ import { ErrorResponse, LoginResponse } from '../../../../src/types';
 import { getUser } from '../../../utils/fixtures';
 import { hash } from '../../../../src/auth/hash';
 import { getUserRepository } from '../../../../src/db';
+import { getConfig } from '../../../utils/config';
 
 describe('login', () => {
   it.each([{}, { username: 'user@example.com' }, { password: 'pass' }])(
@@ -12,7 +13,7 @@ describe('login', () => {
     async (requestBody) => {
       const superSave = await getSuperSave();
 
-      const handler = login(superSave);
+      const handler = login(superSave, getConfig());
 
       const request = { body: requestBody };
       const jsonMock = jest.fn();
@@ -39,7 +40,7 @@ describe('login', () => {
   it('fails on non-existing account', async () => {
     const superSave = await getSuperSave();
 
-    const handler = login(superSave);
+    const handler = login(superSave, getConfig());
 
     const request = { body: { email: 'user@example.com', password: 'foobar' } };
     const jsonMock = jest.fn();
@@ -56,7 +57,7 @@ describe('login', () => {
   it('fails on an invalid password', async () => {
     const superSave = await getSuperSave();
 
-    const handler = login(superSave);
+    const handler = login(superSave, getConfig());
 
     const passwordHash = await hash('password');
     const user = getUser({ password: passwordHash });
@@ -78,7 +79,7 @@ describe('login', () => {
   it('returns tokens on a valid password', async () => {
     const superSave = await getSuperSave();
 
-    const handler = login(superSave);
+    const handler = login(superSave, getConfig());
 
     const passwordHash = await hash('password');
     const user = getUser({ password: passwordHash });

@@ -4,7 +4,9 @@ import { getUser } from '../../../utils/fixtures';
 import { hash } from '../../../../src/auth/hash';
 import { getUserRepository } from '../../../../src/db';
 import { getSuperSave } from '../../../utils/db';
-import { superSaveAuth, middleware } from '../../../../build';
+import { superSaveAuth } from '../../../../build';
+
+afterEach(() => jest.useRealTimers());
 
 describe('authenticate', () => {
   it('successfully validated a valid token', async () => {
@@ -12,8 +14,10 @@ describe('authenticate', () => {
 
     const app = express();
     app.use(express.json());
-    const authRouter = await superSaveAuth(superSave);
-    app.use('/auth', authRouter);
+    const { router, middleware } = await superSaveAuth(superSave, {
+      tokenSecret: 'secure',
+    });
+    app.use('/auth', router);
     app.get('/hello', middleware.authenticate, (_req, res) =>
       res.send(res.locals.auth.userId)
     );
@@ -44,8 +48,10 @@ describe('authenticate', () => {
 
     const app = express();
     app.use(express.json());
-    const authRouter = await superSaveAuth(superSave);
-    app.use('/auth', authRouter);
+    const { router, middleware } = await superSaveAuth(superSave, {
+      tokenSecret: 'secure',
+    });
+    app.use('/auth', router);
     app.get('/hello', middleware.authenticate, (_req, res) =>
       res.send(res.locals.auth.userId)
     );
@@ -63,8 +69,10 @@ describe('authenticate', () => {
 
     const app = express();
     app.use(express.json());
-    const authRouter = await superSaveAuth(superSave);
-    app.use('/auth', authRouter);
+    const { router, middleware } = await superSaveAuth(superSave, {
+      tokenSecret: 'secure',
+    });
+    app.use('/auth', router);
     app.get('/hello', middleware.authenticate, (_req, res) =>
       res.send(res.locals.auth.userId)
     );

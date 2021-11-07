@@ -7,6 +7,11 @@ export type User = {
   lastLogin: number;
 };
 
+export type Tokens = {
+  accessToken: string;
+  refreshToken: string;
+};
+
 export type LoginResponse = {
   data: {
     authorized: boolean;
@@ -40,3 +45,14 @@ export type RefreshTokenResponse = {
     accessToken?: string;
   };
 };
+
+export type Config = {
+  tokenSecret: string;
+  tokenAlgorithm: string;
+  accessTokenExpiration: number;
+  refreshTokenExpiration: number;
+  notSecuredEndpoints: string[];
+  securedEndpoints: string[];
+};
+
+export type ProvidedConfig = Partial<Config>;

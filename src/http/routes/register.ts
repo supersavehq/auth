@@ -2,13 +2,13 @@ import { Request, Response } from 'express';
 import { SuperSave } from 'supersave';
 import Debug from 'debug';
 import { getUserRepository } from '../../db';
-import { RegistrationResponse, User } from '../../types';
+import { RegistrationResponse, User, Config } from '../../types';
 import { generateTokens, hash } from '../../auth';
 import { timeInSeconds } from '../../utils';
 
 const debug = Debug('supersave::auth::register');
 
-export const register = (superSave: SuperSave) =>
+export const register = (superSave: SuperSave, config: Config) =>
   async function (req: Request, res: Response): Promise<void> {
     const repository = getUserRepository(superSave);
 
@@ -53,7 +53,7 @@ export const register = (superSave: SuperSave) =>
 
     const createdUser = await repository.create(user);
 
-    const tokens = await generateTokens(superSave, createdUser);
+    const tokens = await generateTokens(superSave, config, createdUser);
     const response: RegistrationResponse = {
       data: {
         success: true,

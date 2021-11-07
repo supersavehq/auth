@@ -1,8 +1,11 @@
 import nJwt from 'njwt';
+import { Config } from '../types';
 
-export async function generateAccessToken(sub: string): Promise<string> {
-  // TODO secret from config, and expiration
-  const jwt = nJwt.create({ sub }, 'aaa', 'HS512');
-  jwt.setExpiration(new Date().getTime() + 60 * 60 * 1000); // One hour from now
+export async function generateAccessToken(
+  config: Config,
+  sub: string
+): Promise<string> {
+  const jwt = nJwt.create({ sub }, config.tokenSecret, config.tokenAlgorithm);
+  jwt.setExpiration(new Date().getTime() + config.accessTokenExpiration * 1000);
   return jwt.compact();
 }

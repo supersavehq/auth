@@ -16,8 +16,10 @@ describe('register', () => {
 
       const app = express();
       app.use(express.json());
-      const authRouter = await superSaveAuth(superSave);
-      app.use('/auth', authRouter);
+      const { router } = await superSaveAuth(superSave, {
+        tokenSecret: 'secure',
+      });
+      app.use('/auth', router);
 
       // Run
       const request = { email: 'user@example.com', password: 'fastpass', name };
@@ -52,8 +54,10 @@ describe('register', () => {
 
     const app = express();
     app.use(express.json());
-    const authRouter = await superSaveAuth(superSave);
-    app.use('/auth', authRouter);
+    const { router } = await superSaveAuth(superSave, {
+      tokenSecret: 'secure',
+    });
+    app.use('/auth', router);
 
     // Run
     const request = { email: user.email, password: 'secret-pass' };

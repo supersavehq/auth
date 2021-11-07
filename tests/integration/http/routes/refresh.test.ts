@@ -26,8 +26,10 @@ describe('refresh', () => {
 
     const app = express();
     app.use(express.json());
-    const authRouter = await superSaveAuth(superSave);
-    app.use('/auth', authRouter);
+    const { router } = await superSaveAuth(superSave, {
+      tokenSecret: 'secure',
+    });
+    app.use('/auth', router);
 
     const request = { token: 'secure-token-id' };
 
@@ -46,8 +48,10 @@ describe('refresh', () => {
 
     const app = express();
     app.use(express.json());
-    const authRouter = await superSaveAuth(superSave);
-    app.use('/auth', authRouter);
+    const { router } = await superSaveAuth(superSave, {
+      tokenSecret: 'secure',
+    });
+    app.use('/auth', router);
 
     const request = { token: 'secure-token-id' };
 
