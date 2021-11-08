@@ -6,7 +6,7 @@ import { RegistrationResponse, User, Config } from '../../types';
 import { generateTokens, hash } from '../../auth';
 import { timeInSeconds } from '../../utils';
 
-const debug = Debug('supersave::auth::register');
+const debug = Debug('supersave:auth:register');
 
 export const register = (superSave: SuperSave, config: Config) =>
   async function (req: Request, res: Response): Promise<void> {

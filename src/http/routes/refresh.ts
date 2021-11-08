@@ -6,7 +6,7 @@ import { RefreshTokenResponse, Config } from '../../types';
 import { timeInSeconds } from '../../utils';
 import { generateAccessToken } from '../../auth';
 
-const debug = Debug('supersave::auth::refresh');
+const debug = Debug('supersave:auth:refresh');
 
 export const refresh = (superSave: SuperSave, config: Config) =>
   async function (req: Request, res: Response): Promise<void> {

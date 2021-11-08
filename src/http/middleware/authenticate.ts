@@ -4,7 +4,7 @@ import { verifyAccessToken } from '../../auth';
 import { ErrorResponse, Config } from '../../types';
 import { isEndpointSecured } from '../../utils';
 
-const debug = Debug('supersave::auth::middleware::authenticate');
+const debug = Debug('supersave:auth:middleware:authenticate');
 
 export const authenticate = (config: Config) =>
   async function (

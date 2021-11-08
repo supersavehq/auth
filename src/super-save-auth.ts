@@ -4,6 +4,7 @@ import { login, register, refresh } from './http/routes';
 import { initializeDb } from './db';
 import { Config, ProvidedConfig } from './types';
 import { authenticate } from './http/middleware';
+import { addCollection } from './hooks';
 
 const DEFAULT_CONFIG: Config = {
   tokenSecret: '',
@@ -23,7 +24,7 @@ export async function superSaveAuth(
   }
   if (providedConfig.notSecuredEndpoints && providedConfig.securedEndpoints) {
     throw new Error(
-      'notSecuredEnpoints and securedEndpoints are mutually exclusive, you can only defined one.'
+      'notSecuredEnpoints and securedEndpoints are mutually exclusive, you can only define one.'
     );
   }
 
@@ -44,5 +45,6 @@ export async function superSaveAuth(
     middleware: {
       authenticate: authenticate(config),
     },
+    addCollection: addCollection(superSave),
   };
 }

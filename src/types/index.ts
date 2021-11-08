@@ -56,3 +56,10 @@ export type Config = {
 };
 
 export type ProvidedConfig = Partial<Config>;
+
+export type CollectionEntityWithUserId = {
+  id: string;
+  userId: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+};

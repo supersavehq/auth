@@ -6,7 +6,7 @@ import { generateTokens, hash } from '../../auth';
 import { SuperSave } from 'supersave';
 import { timeInSeconds } from '../../utils';
 
-const debug = Debug('supersave::auth::login');
+const debug = Debug('supersave:auth:login');
 
 export const login = (superSave: SuperSave, config: Config) =>
   async function (req: Request, res: Response): Promise<void> {
