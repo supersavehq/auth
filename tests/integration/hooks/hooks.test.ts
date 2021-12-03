@@ -4,6 +4,7 @@ import supertest from 'supertest';
 import { superSaveAuth, User } from '../../../build';
 import { getUserRepository } from '../../../src/db';
 import { hash } from '../../../src/auth';
+import getConnection from '../../connection';
 
 const USER_ID_1 = 'user1';
 const USER_ID_2 = 'user2';
@@ -34,7 +35,8 @@ const app = express();
 app.use(express.json());
 
 const superTest = supertest(app);
-const superSavePromise = SuperSave.create('sqlite://:memory:').then(
+// We initialize supersave manually here, because we do some more setup than in the boiler plate.
+const superSavePromise = SuperSave.create(getConnection()).then(
   (superSave: SuperSave) => {
     return superSaveAuth(superSave, { tokenSecret: 'aaa' })
       .then(({ router, middleware, addCollection }) => {

@@ -7,3 +7,13 @@ services:
       - .:/app
     working_dir: /app
     command: npm run watch
+    links:
+      - mysql
+
+  mysql:
+    image: mysql:5.7    
+    environment:
+      - MYSQL_DATABASE=supersave
+      - MYSQL_USER=supersave
+      - MYSQL_PASSWORD=savesuper
+      - MYSQL_RANDOM_ROOT_PASSWORD=1

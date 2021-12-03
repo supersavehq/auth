@@ -5,7 +5,9 @@ import { hash } from '../../../../src/auth/hash';
 import { getUserRepository } from '../../../../src/db';
 import { getSuperSave } from '../../../utils/db';
 import { superSaveAuth, ProvidedConfig } from '../../../../build';
+import { clear } from '../../../mysql';
 
+beforeEach(clear);
 afterEach(() => jest.useRealTimers());
 
 describe('authenticate', () => {

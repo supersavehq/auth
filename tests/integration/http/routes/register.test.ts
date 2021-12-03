@@ -7,6 +7,9 @@ import {
 } from '../../../../src/db';
 import { superSaveAuth } from '../../../../build';
 import { getUser } from '../../../utils/fixtures';
+import { clear } from '../../../mysql';
+
+beforeEach(clear);
 
 describe('register', () => {
   it.each([undefined, 'the name'])(

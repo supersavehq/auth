@@ -8,6 +8,9 @@ import {
 } from '../../../../src/db';
 import { superSaveAuth } from '../../../../build';
 import { timeInSeconds } from '../../../../src/utils';
+import { clear } from '../../../mysql';
+
+beforeEach(clear);
 
 describe('refresh', () => {
   it('returns a new accessToken', async () => {

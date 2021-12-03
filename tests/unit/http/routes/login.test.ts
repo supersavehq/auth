@@ -6,6 +6,9 @@ import { getUser } from '../../../utils/fixtures';
 import { hash } from '../../../../src/auth/hash';
 import { getUserRepository } from '../../../../src/db';
 import { getConfig } from '../../../utils/config';
+import { clear } from '../../../mysql';
+
+beforeEach(clear);
 
 describe('login', () => {
   it.each([{}, { username: 'user@example.com' }, { password: 'pass' }])(

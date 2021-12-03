@@ -9,6 +9,9 @@ import {
 } from '../../../../src/db';
 import { timeInSeconds } from '../../../../src/utils';
 import { getConfig } from '../../../utils/config';
+import { clear } from '../../../mysql';
+
+beforeEach(clear);
 
 describe('refresh', () => {
   it.each([{}, undefined])(

@@ -11,8 +11,7 @@ export async function generateTokens(
   config: Config,
   user: User
 ): Promise<Tokens> {
-  const refreshToken = (await randomBytes()).toString('hex');
-
+  const refreshToken = (await randomBytes()).toString('hex').substring(0, 32);
   const refreshTokenRepository = getRefreshTokenRepository(superSave);
 
   const expiresAt = timeInSeconds() + config.refreshTokenExpiration;

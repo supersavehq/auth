@@ -3,6 +3,9 @@ import { generateTokens } from '../../../src/auth';
 import { Config } from '../../../src/types';
 import { getUser } from '../../utils/fixtures';
 import { getRefreshTokenRepository } from '../../../src/db';
+import { clear } from '../../mysql';
+
+beforeEach(clear);
 
 describe('generateTokens', () => {
   it('generates tokens for a user', async () => {

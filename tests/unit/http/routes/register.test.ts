@@ -8,6 +8,9 @@ import {
   getUserRepository,
 } from '../../../../src/db';
 import { getConfig } from '../../../utils/config';
+import { clear } from '../../../mysql';
+
+beforeEach(clear);
 
 describe('register', () => {
   it.each([

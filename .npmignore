@@ -1,0 +1,8 @@
+tests
+src
+.prettierrc
+jest.config.js
+tsconfig.json
+docker-compose.yml
+.docker
+.editorconfig
