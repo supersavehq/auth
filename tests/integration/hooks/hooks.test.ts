@@ -27,9 +27,48 @@ export const planetEntity: EntityDefinition = {
   relations: [],
 };
 
+type Moon = {
+  id: string;
+  name: string;
+  userId: string;
+  planet: Planet;
+};
+
+const moonEntity: EntityDefinition = {
+  name: 'moon',
+  template: {},
+  relations: [
+    {
+      name: 'planet',
+      field: 'planet',
+      multiple: false,
+    },
+  ],
+};
+
+type System = {
+  id: string;
+  name: string;
+  userId: string;
+  planets: Planet[];
+};
+
+const systemEntity: EntityDefinition = {
+  name: 'system',
+  template: {},
+  relations: [
+    {
+      name: 'planet',
+      field: 'planets',
+      multiple: true,
+    },
+  ],
+};
+
 let user1: User;
 let user2: User;
 let user1AccessToken: string;
+let planetMars: Planet;
 
 const app = express();
 app.use(express.json());
@@ -40,7 +79,11 @@ const superSavePromise = SuperSave.create(getConnection()).then(
   (superSave: SuperSave) => {
     return superSaveAuth(superSave, { tokenSecret: 'aaa' })
       .then(({ router, middleware, addCollection }) => {
-        return addCollection(planetEntity).then(() => {
+        return Promise.all([
+          addCollection(planetEntity),
+          addCollection(moonEntity),
+          addCollection(systemEntity),
+        ]).then(() => {
           return { router, middleware };
         });
       })
@@ -87,7 +130,8 @@ const superSavePromise = SuperSave.create(getConnection()).then(
             distance: PLANET_1.length,
             userId: user1.id,
           })
-          .then(() => {
+          .then((createdMars) => {
+            planetMars = createdMars;
             return planetRepository.create({
               // @ts-expect-error We are explicitly specifying the entity, which is not supported by types, but does work.
               id: PLANET_2,
@@ -96,6 +140,22 @@ const superSavePromise = SuperSave.create(getConnection()).then(
               userId: user2.id,
             });
           });
+      })
+      .then(() => {
+        const moonRepository = superSave.getRepository<Moon>('moon');
+        return moonRepository.create({
+          name: 'Phobos',
+          planet: planetMars,
+          userId: user1.id,
+        });
+      })
+      .then(() => {
+        const systemRepository = superSave.getRepository<System>('system');
+        return systemRepository.create({
+          name: 'Solar system',
+          planets: [planetMars],
+          userId: user1.id,
+        });
       })
       .then(() => {
         return superTest
@@ -143,6 +203,34 @@ describe('getById', () => {
       .get(`/api/planets/${PLANET_2}`)
       .set('Authorization', `Bearer ${user1AccessToken}`)
       .expect(401);
+  });
+});
+
+describe('entityTransform', () => {
+  test('the userId is removed from a singular related entity', async () => {
+    await superSavePromise;
+    const response = await superTest
+      .get('/api/moons')
+      .set('Authorization', `Bearer ${user1AccessToken}`)
+      .expect(200);
+
+    expect(response.body.data).toHaveLength(1);
+
+    const moon = response.body.data[0] as Moon;
+    expect(moon.planet.userId).not.toBeDefined();
+  });
+
+  test('the userId is removed from a multiple related entity', async () => {
+    await superSavePromise;
+    const response = await superTest
+      .get('/api/systems')
+      .set('Authorization', `Bearer ${user1AccessToken}`)
+      .expect(200);
+
+    expect(response.body.data).toHaveLength(1);
+
+    const system = response.body.data[0] as System;
+    expect(system.planets[0].userId).not.toBeDefined();
   });
 });
 
