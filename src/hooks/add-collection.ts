@@ -14,18 +14,21 @@ export const addCollection = <T>(superSave: SuperSave) =>
         ...(collection.filterSortFields ?? {}),
         userId: 'string',
       },
-      hooks: {
-        get,
-        // @ts-expect-error Ignore types here because we require a userId in the hook.
-        getById,
-        // @ts-expect-error Ignore types here because we require a userId in the hook.
-        entityTransform,
-        // @ts-expect-error Ignore types here because we require a userId in the hook.
-        updateBefore,
-        // @ts-expect-error Ignore types here because we require a userId in the hook.
-        createBefore,
-        // @ts-expect-error Ignore types here because we require a userId in the hook.
-        deleteBefore,
-      },
+      hooks: [
+        {
+          get,
+          // @ts-expect-error Ignore types here because we require a userId in the hook.
+          getById,
+          // @ts-expect-error Ignore types here because we require a userId in the hook.
+          entityTransform,
+          // @ts-expect-error Ignore types here because we require a userId in the hook.
+          updateBefore,
+          // @ts-expect-error Ignore types here because we require a userId in the hook.
+          createBefore,
+          // @ts-expect-error Ignore types here because we require a userId in the hook.
+          deleteBefore,
+        },
+        ...(collection.hooks ?? []),
+      ],
     });
   };

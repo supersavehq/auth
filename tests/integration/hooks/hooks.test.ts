@@ -1,5 +1,5 @@
 import express from 'express';
-import { EntityDefinition, SuperSave } from 'supersave';
+import { Collection, EntityDefinition, SuperSave } from 'supersave';
 import supertest from 'supertest';
 import { superSaveAuth, User } from '../../../build';
 import { getUserRepository } from '../../../src/db';
@@ -11,6 +11,7 @@ const USER_ID_2 = 'user2';
 const PASSWORD = 'pass-word';
 const PLANET_1 = 'Mars';
 const PLANET_2 = 'Uranus';
+const SYSTEM_1 = 'Solar system';
 
 type Planet = {
   id: string;
@@ -53,7 +54,7 @@ type System = {
   planets: Planet[];
 };
 
-const systemEntity: EntityDefinition = {
+const systemEntity: Collection = {
   name: 'system',
   template: {},
   relations: [
@@ -61,6 +62,27 @@ const systemEntity: EntityDefinition = {
       name: 'planet',
       field: 'planets',
       multiple: true,
+    },
+  ],
+  hooks: [
+    // Test that other hooks already defined in the collection are also honored, not only the supersave-auth hooks.
+    {
+      // @ts-expect-error Could not get the correct generics IN,OUT in place for the entityTransform function.
+      entityTransform: (_collection, _req, _res, item: System) => {
+        return {
+          ...item,
+          name: `HOOK - ${item.name}`,
+        };
+      },
+    },
+    {
+      // @ts-expect-error Could not get the correct generics IN,OUT in place for the entityTransform function.
+      entityTransform: (_collection, _req, _res, item: System) => {
+        return {
+          ...item,
+          name: `2ND - ${item.name}`,
+        };
+      },
     },
   ],
 };
@@ -152,7 +174,7 @@ const superSavePromise = SuperSave.create(getConnection()).then(
       .then(() => {
         const systemRepository = superSave.getRepository<System>('system');
         return systemRepository.create({
-          name: 'Solar system',
+          name: SYSTEM_1,
           planets: [planetMars],
           userId: user1.id,
         });
@@ -230,6 +252,7 @@ describe('entityTransform', () => {
     expect(response.body.data).toHaveLength(1);
 
     const system = response.body.data[0] as System;
+    expect(system.name).toEqual(`2ND - HOOK - ${SYSTEM_1}`); // Also verify that the non-supersave-auth introduced hook works
     expect(system.planets[0].userId).not.toBeDefined();
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "supersave-auth",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "A library that enables developers to easily build authenticated endpoints for a supersave powered API/backend.",
   "main": "build/index.js",
   "scripts": {
@@ -79,6 +79,6 @@
     "npm": "^8.1.3"
   },
   "peerDependencies": {
-    "supersave": "^0.11.0"
+    "supersave": "^0.12.1"
   }
 }
