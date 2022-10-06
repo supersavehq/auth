@@ -15,6 +15,9 @@
     "test:mysql": "CONN=mysql://supersave:savesuper@mysql/supersave jest --runInBand --forceExit",
     "test:watch:mysql": "CONN=mysql://supersave:savesuper@mysql/supersave jest --runInBand --forceExit --watch"
   },
+  "engines": {
+    "node": "^16.13 || ^18.10"
+  },
   "types": "./build/index.d.ts",
   "repository": {
     "type": "git",
