@@ -11,5 +11,6 @@
     "noImplicitThis": true,
     "moduleResolution": "node"
   },
-  "exclude": ["./tests", "./build"]
+  "exclude": ["./tests", "./build"],
+  "include": ["./src/**/*.ts"]
 }
