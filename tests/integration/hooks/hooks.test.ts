@@ -128,7 +128,6 @@ const superSavePromise = SuperSave.create(getConnection()).then(
             password: passwordHash,
           })
           .then((user) => {
-            // @ts-expect-error The typings don't match up.
             user1 = user;
             return userRepository.create({
               // @ts-expect-error We are explicitly specifying the entity, which is not supported by types, but does work.
@@ -138,7 +137,6 @@ const superSavePromise = SuperSave.create(getConnection()).then(
             });
           })
           .then((user) => {
-            // @ts-expect-error The typings don't match up.
             user2 = user;
           });
       })
@@ -259,7 +257,6 @@ describe('entityTransform', () => {
 
     const system = response.body.data[0] as System;
     expect(system.name).toEqual(`2ND - HOOK - ${SYSTEM_1}`); // Also verify that the non-supersave-auth introduced hook works
-    // @ts-expect-error The typings don't match up.
     expect(system.planets[0].userId).not.toBeDefined();
   });
 });
