@@ -1,8 +1,8 @@
-import { SuperSave } from 'supersave';
+import type { SuperSave } from 'supersave';
 import express from 'express';
 import { login, register, refresh } from './http/routes';
 import { initializeDb } from './db';
-import { Config, ProvidedConfig } from './types';
+import type { Config, ProvidedConfig } from './types';
 import { authenticate } from './http/middleware';
 import { addCollection } from './hooks';
 

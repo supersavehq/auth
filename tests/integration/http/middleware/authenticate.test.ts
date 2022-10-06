@@ -21,7 +21,7 @@ describe('authenticate', () => {
     });
     app.use('/auth', router);
     app.get('/hello', middleware.authenticate, (_req, res) =>
-      res.send(res.locals.auth.userId)
+      res.send(res.locals['auth'].userId)
     );
 
     // First get a valid token
@@ -55,7 +55,7 @@ describe('authenticate', () => {
     });
     app.use('/auth', router);
     app.get('/hello', middleware.authenticate, (_req, res) =>
-      res.send(res.locals.auth.userId)
+      res.send(res.locals['auth'].userId)
     );
 
     await supertest(app).get('/hello').expect(401);
@@ -76,7 +76,7 @@ describe('authenticate', () => {
     });
     app.use('/auth', router);
     app.get('/hello', middleware.authenticate, (_req, res) =>
-      res.send(res.locals.auth.userId)
+      res.send(res.locals['auth'].userId)
     );
 
     // First get a valid token

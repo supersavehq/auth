@@ -1,7 +1,7 @@
-import { User } from '../../src/types';
+import type { User } from '../../src/types';
 
 export function getUser(props: Partial<User> = {}): User {
-  const now = Math.round(new Date().getTime() / 1000);
+  const now = Math.round(Date.now() / 1000);
 
   return {
     id: 'user-id',

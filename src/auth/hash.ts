@@ -5,7 +5,7 @@ const CONFIG: Record<string, string | number> = {
   digestAlgorithm: 'sha512',
   keyLen: 64,
   saltSize: 64,
-  iterations: 15000,
+  iterations: 15_000,
 };
 const PBKDF2 = 'pbkdf2';
 
@@ -20,7 +20,7 @@ export async function hash(input: string): Promise<string> {
         return;
       }
 
-      resolve(`${PBKDF2}$${CONFIG.iterations}$${cipherText}$${salt}`);
+      resolve(`${PBKDF2}$${CONFIG['iterations']}$${cipherText}$${salt}`);
     });
   });
 }

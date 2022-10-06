@@ -87,8 +87,8 @@ const systemEntity: Collection = {
   ],
 };
 
-let user1: User;
-let user2: User;
+let user1: User | undefined;
+let user2: User | undefined;
 let user1AccessToken: string;
 let planetMars: Planet;
 
@@ -128,6 +128,7 @@ const superSavePromise = SuperSave.create(getConnection()).then(
             password: passwordHash,
           })
           .then((user) => {
+            // @ts-expect-error The typings don't match up.
             user1 = user;
             return userRepository.create({
               // @ts-expect-error We are explicitly specifying the entity, which is not supported by types, but does work.
@@ -137,6 +138,7 @@ const superSavePromise = SuperSave.create(getConnection()).then(
             });
           })
           .then((user) => {
+            // @ts-expect-error The typings don't match up.
             user2 = user;
           });
       })
@@ -150,6 +152,7 @@ const superSavePromise = SuperSave.create(getConnection()).then(
             id: PLANET_1,
             name: PLANET_1,
             distance: PLANET_1.length,
+            // @ts-expect-error The typings don't match up.
             userId: user1.id,
           })
           .then((createdMars) => {
@@ -159,6 +162,7 @@ const superSavePromise = SuperSave.create(getConnection()).then(
               id: PLANET_2,
               name: PLANET_2,
               distance: PLANET_2.length,
+              // @ts-expect-error The typings don't match up.
               userId: user2.id,
             });
           });
@@ -168,6 +172,7 @@ const superSavePromise = SuperSave.create(getConnection()).then(
         return moonRepository.create({
           name: 'Phobos',
           planet: planetMars,
+          // @ts-expect-error The typings don't match up.
           userId: user1.id,
         });
       })
@@ -176,6 +181,7 @@ const superSavePromise = SuperSave.create(getConnection()).then(
         return systemRepository.create({
           name: SYSTEM_1,
           planets: [planetMars],
+          // @ts-expect-error The typings don't match up.
           userId: user1.id,
         });
       })
@@ -253,6 +259,7 @@ describe('entityTransform', () => {
 
     const system = response.body.data[0] as System;
     expect(system.name).toEqual(`2ND - HOOK - ${SYSTEM_1}`); // Also verify that the non-supersave-auth introduced hook works
+    // @ts-expect-error The typings don't match up.
     expect(system.planets[0].userId).not.toBeDefined();
   });
 });

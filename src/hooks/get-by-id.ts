@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { Collection, HookError } from 'supersave';
 import Debug from 'debug';
-import { CollectionEntityWithUserId } from '../types';
+import type { CollectionEntityWithUserId } from '../types';
 import checkUserId from './check-user-id';
 
 const debug = Debug('supersave:auth:hooks');
@@ -17,7 +17,7 @@ export default function (
   }
   const userId = checkUserId(res);
 
-  if (entity.userId !== res.locals.auth.userId) {
+  if (entity.userId !== res.locals['auth'].userId) {
     debug('Entity userId %s does not match userId %s', entity.userId, userId);
     throw new HookError('Cannot fetch this one.', 401);
   }

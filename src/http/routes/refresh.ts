@@ -1,8 +1,8 @@
-import { SuperSave } from 'supersave';
-import { Request, Response } from 'express';
+import type { SuperSave } from 'supersave';
+import type { Request, Response } from 'express';
 import Debug from 'debug';
 import { getRefreshTokenRepository, getUserRepository } from '../../db';
-import { RefreshTokenResponse, Config } from '../../types';
+import type { RefreshTokenResponse, Config } from '../../types';
 import { timeInSeconds } from '../../utils';
 import { generateAccessToken } from '../../auth';
 

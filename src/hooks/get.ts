@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { Collection } from 'supersave';
+import type { Request, Response } from 'express';
+import type { Collection } from 'supersave';
 import Debug from 'debug';
 import checkUserId from './check-user-id';
 
@@ -13,5 +13,5 @@ export default function get(
   const userId = checkUserId(res);
 
   debug('Add a filter parameter for this specific userId %s', userId);
-  req.query.userId = userId;
+  req.query['userId'] = userId;
 }

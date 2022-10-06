@@ -1,5 +1,5 @@
-import { Repository, SuperSave } from 'supersave';
-import { RefreshToken, User } from '../types';
+import type { Repository, SuperSave } from 'supersave';
+import type { RefreshToken, User } from '../types';
 import * as entities from './entities';
 
 export async function initializeDb(superSave: SuperSave): Promise<void> {

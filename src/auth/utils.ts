@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 export async function randomBytes(): Promise<Buffer> {
   return new Promise((resolve, reject) => {

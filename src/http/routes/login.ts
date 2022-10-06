@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import Debug from 'debug';
 import { getUserRepository } from '../../db';
-import { LoginResponse, User, Config } from '../../types';
+import type { LoginResponse, User, Config } from '../../types';
 import { generateTokens, hash } from '../../auth';
-import { SuperSave } from 'supersave';
+import type { SuperSave } from 'supersave';
 import { timeInSeconds } from '../../utils';
 
 const debug = Debug('supersave:auth:login');
@@ -32,6 +32,9 @@ export const login = (superSave: SuperSave, config: Config) =>
       return;
     }
 
+    if (typeof users[0] === 'undefined') {
+      throw new TypeError('The returned user was not an actual user object.');
+    }
     const user: User = users[0];
 
     if (!(await hash.verify(password, user.password))) {

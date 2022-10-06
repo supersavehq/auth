@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
-import { SuperSave } from 'supersave';
+import type { Request, Response } from 'express';
+import type { SuperSave } from 'supersave';
 import Debug from 'debug';
 import { getUserRepository } from '../../db';
-import { RegistrationResponse, User, Config } from '../../types';
+import type { RegistrationResponse, User, Config } from '../../types';
 import { generateTokens, hash } from '../../auth';
 import { timeInSeconds } from '../../utils';
 

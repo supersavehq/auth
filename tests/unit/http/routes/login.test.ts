@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { getSuperSave } from '../../../utils/db';
 import { login } from '../../../../src/http/routes';
-import { ErrorResponse, LoginResponse } from '../../../../src/types';
+import type { ErrorResponse, LoginResponse } from '../../../../src/types';
 import { getUser } from '../../../utils/fixtures';
 import { hash } from '../../../../src/auth/hash';
 import { getUserRepository } from '../../../../src/db';

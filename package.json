@@ -1,6 +1,6 @@
 {
-  "name": "supersave-auth",
-  "version": "0.2.0",
+  "name": "@supersave/auth",
+  "version": "0.3.0",
   "description": "A library that enables developers to easily build authenticated endpoints for a supersave powered API/backend.",
   "main": "build/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "types": "./build/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/daangemist/supersave-auth.git"
+    "url": "git+https://github.com/supersavehq/auth.git"
   },
   "keywords": [
     "supersave",
@@ -29,13 +29,16 @@
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
     "extends": [
-      "plugin:@typescript-eslint/recommended"
+      "plugin:@typescript-eslint/recommended",
+      "plugin:unicorn/recommended"
     ],
     "plugins": [
       "unicorn"
     ],
     "rules": {
       "unicorn/filename-case": "error",
+      "unicorn/prevent-abbreviations": "off",
+      "unicorn/no-null": "off",
       "@typescript-eslint/ban-ts-comment": [
         "error",
         {
@@ -50,11 +53,11 @@
   "author": "daangemist",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/daangemist/supersave-auth/issues"
+    "url": "https://github.com/supersavehq/auth/issues"
   },
-  "homepage": "https://github.com/daangemist/supersave-auth#readme",
+  "homepage": "https://github.com/supersavehq/auth#readme",
   "devDependencies": {
-    "@tsconfig/node14": "^1.0.1",
+    "@tsconfig/node16-strictest": "^1.0.4",
     "@types/debug": "^4.1.7",
     "@types/express": "^4.17.13",
     "@types/jest": "^27.0.2",

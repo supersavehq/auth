@@ -1,4 +1,4 @@
-import { EntityDefinition } from 'supersave';
+import type { EntityDefinition } from 'supersave';
 
 export const NAMESPACE = 'auth';
 

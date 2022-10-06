@@ -1,7 +1,7 @@
 import Debug from 'debug';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { Collection, HookError } from 'supersave';
-import { CollectionEntityWithUserId } from '..';
+import type { CollectionEntityWithUserId } from '..';
 import checkUserId from './check-user-id';
 
 const debug = Debug('supersave:auth:update-before');

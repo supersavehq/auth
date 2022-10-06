@@ -1,4 +1,4 @@
-import { Config } from '../../src/types';
+import type { Config } from '../../src/types';
 
 const DEFAULT_CONFIG: Config = {
   tokenSecret: 'aaa',

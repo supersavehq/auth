@@ -39,7 +39,7 @@ describe('register', () => {
         userRepository.createQuery().eq('email', 'user@example.com')
       );
       expect(users).toHaveLength(1);
-      expect(users[0].name).toEqual(name);
+      expect(users[0]?.name).toEqual(name);
 
       const refreshTokenRepository = getRefreshTokenRepository(superSave);
       const token = await refreshTokenRepository.getById(

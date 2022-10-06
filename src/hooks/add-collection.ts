@@ -1,4 +1,4 @@
-import { Collection, Repository, SuperSave } from 'supersave';
+import type { Collection, Repository, SuperSave } from 'supersave';
 import deleteBefore from './delete-before';
 import get from './get';
 import getById from './get-by-id';
@@ -11,7 +11,7 @@ export const addCollection = <T>(superSave: SuperSave) =>
     return await superSave.addCollection<T>({
       ...collection,
       filterSortFields: {
-        ...(collection.filterSortFields ?? {}),
+        ...collection.filterSortFields,
         userId: 'string',
       },
       hooks: [

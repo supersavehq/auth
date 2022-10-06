@@ -1,5 +1,5 @@
 import nJwt from 'njwt';
-import { Config } from '../types';
+import type { Config } from '../types';
 
 export async function verifyAccessToken(
   config: Config,

@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import { BaseEntity, Collection } from 'supersave';
-import { CollectionEntityWithUserId } from '../types';
+import type { Request, Response } from 'express';
+import type { BaseEntity, Collection } from 'supersave';
+import type { CollectionEntityWithUserId } from '../types';
 
 export default function (
   collection: Collection,
@@ -13,11 +13,11 @@ export default function (
 
   // Also clear any related collections
   if (collection.relations.length > 0) {
-    collection.relations.forEach((relation) => {
+    for (const relation of collection.relations) {
       if (relation.multiple && Array.isArray(entity[relation.field])) {
         entity[relation.field] = entity[relation.field].map(
           (relationEntity: BaseEntity) => {
-            delete relationEntity.userId;
+            delete relationEntity['userId'];
             return relationEntity;
           }
         );
@@ -28,7 +28,7 @@ export default function (
       ) {
         delete entity[relation.field].userId;
       }
-    });
+    }
   }
   return entity;
 }

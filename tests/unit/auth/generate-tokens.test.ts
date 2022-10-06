@@ -1,6 +1,6 @@
 import { getSuperSave } from '../../utils/db';
 import { generateTokens } from '../../../src/auth';
-import { Config } from '../../../src/types';
+import type { Config } from '../../../src/types';
 import { getUser } from '../../utils/fixtures';
 import { getRefreshTokenRepository } from '../../../src/db';
 import { clear } from '../../mysql';
@@ -21,6 +21,6 @@ describe('generateTokens', () => {
     const refreshTokens = await refreshTokenRepository.getAll();
 
     expect(refreshTokens).toHaveLength(1);
-    expect(refreshTokens[0].id).toEqual(tokens.refreshToken);
+    expect(refreshTokens[0]?.id).toEqual(tokens.refreshToken);
   });
 });

@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import Debug from 'debug';
 import { verifyAccessToken } from '../../auth';
-import { ErrorResponse, Config } from '../../types';
+import type { ErrorResponse, Config } from '../../types';
 import { isEndpointSecured } from '../../utils';
 
 const debug = Debug('supersave:auth:middleware:authenticate');
@@ -29,7 +29,7 @@ export const authenticate = (config: Config) =>
 
     const match = authorization.match(/^bearer (.*)/i);
     if (!match) {
-      debug('The authorization header did match the format "Bearer xxx"');
+      debug('The authorization header did not match the format "Bearer xxx"');
       const response: ErrorResponse = {
         message: 'Authenticated user required',
       };
@@ -37,7 +37,7 @@ export const authenticate = (config: Config) =>
       return;
     }
 
-    const token = match[1];
+    const token = match[1] ?? '';
     try {
       const parsedToken = await verifyAccessToken(config, token);
       // @ts-expect-error njwt types do not define the sub on the body, but there is.

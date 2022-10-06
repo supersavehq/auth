@@ -1,5 +1,5 @@
 {
-  "extends": "@tsconfig/node14",
+  "extends": "@tsconfig/node16-strictest",
   "compilerOptions": {
     "target": "ES6",
     "outDir": "./build",
@@ -9,7 +9,7 @@
     "noUnusedParameters": true,
     "noUnusedLocals": true,
     "noImplicitThis": true,
-    "moduleResolution": "node",    
+    "moduleResolution": "node"
   },
-  "exclude": ["./tests", "./build"]
+  "exclude": ["./build"]
 }

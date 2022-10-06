@@ -1,7 +1,7 @@
 import Debug from 'debug';
-import { Request, Response } from 'express';
-import { Collection } from 'supersave';
-import { CollectionEntityWithUserId } from '..';
+import type { Request, Response } from 'express';
+import type { Collection } from 'supersave';
+import type { CollectionEntityWithUserId } from '..';
 import checkUserId from './check-user-id';
 
 const debug = Debug('supersave:auth:hooks:create-before');

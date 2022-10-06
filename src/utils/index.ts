@@ -1,7 +1,7 @@
-import { Config } from '../types';
+import type { Config } from '../types';
 
 export function timeInSeconds(): number {
-  return Math.round(new Date().getTime() / 1000);
+  return Math.round(Date.now() / 1000);
 }
 
 export function isEndpointSecured(config: Config, path: string): boolean {
@@ -21,12 +21,11 @@ export function isEndpointSecured(config: Config, path: string): boolean {
 
   for (let iter = endpointsToCheck.length - 1; iter >= 0; iter--) {
     const regexp = endpointsToCheck[iter];
-    if (path.match(regexp)) {
-      if (matchMeansSecured) {
-        return true;
-      } else {
-        return false;
-      }
+    if (typeof regexp === 'undefined') {
+      return true; // Fallback to always secure, mostly to please the TS parser.
+    }
+    if (regexp.test(path)) {
+      return matchMeansSecured ? true : false;
     }
   }
   return !matchMeansSecured; // no match means the opposite
