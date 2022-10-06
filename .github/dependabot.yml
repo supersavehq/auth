@@ -16,3 +16,4 @@ updates:
       - dependency-name: '@typescript-eslint/parser'
       - dependency-name: 'eslint-plugin-unicorn'
       - dependency-name: 'prettier'
+      - dependency-name: 'typescript'
