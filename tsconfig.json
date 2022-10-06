@@ -11,5 +11,5 @@
     "noImplicitThis": true,
     "moduleResolution": "node"
   },
-  "exclude": ["./build"]
+  "exclude": ["./tests", "./build"]
 }
