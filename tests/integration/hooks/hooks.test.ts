@@ -257,7 +257,7 @@ describe('entityTransform', () => {
 
     const system = response.body.data[0] as System;
     expect(system.name).toEqual(`2ND - HOOK - ${SYSTEM_1}`); // Also verify that the non-supersave-auth introduced hook works
-    expect(system.planets[0].userId).not.toBeDefined();
+    expect(system.planets[0]?.userId).not.toBeDefined();
   });
 });
 
