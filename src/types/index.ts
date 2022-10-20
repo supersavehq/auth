@@ -12,11 +12,18 @@ export type Tokens = {
   refreshToken: string;
 };
 
-export type LoginResponse = {
+export type LoginResponse = LoginResponseSuccess | LoginResponseFailure;
+export type LoginResponseSuccess = {
   data: {
-    authorized: boolean;
-    accessToken?: string;
-    refreshToken?: string;
+    authorized: true;
+    accessToken: string;
+    refreshToken: string;
+  };
+};
+export type LoginResponseFailure = {
+  data: {
+    authorized: false;
+    message?: string;
   };
 };
 
@@ -30,19 +37,35 @@ export type RefreshToken = {
   expiresAt: number;
 };
 
-export type RegistrationResponse = {
+export type RegistrationResponse =
+  | RegistrationResponseSuccess
+  | RegistrationResponseFailure;
+export type RegistrationResponseSuccess = {
   data: {
-    success: boolean;
-    message?: string;
-    accessToken?: string;
-    refreshToken?: string;
+    success: true;
+    accessToken: string;
+    refreshToken: string;
+  };
+};
+export type RegistrationResponseFailure = {
+  data: {
+    success: false;
+    message: string;
   };
 };
 
-export type RefreshTokenResponse = {
+export type RefreshTokenResponse =
+  | RefreshTokenResponseSuccess
+  | RefreshTokenResponseFailure;
+export type RefreshTokenResponseSuccess = {
   data: {
-    success: boolean;
-    accessToken?: string;
+    success: true;
+    accessToken: string;
+  };
+};
+export type RefreshTokenResponseFailure = {
+  data: {
+    success: false;
   };
 };
 

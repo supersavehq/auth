@@ -6,3 +6,4 @@ tsconfig.json
 docker-compose.yml
 .docker
 .editorconfig
+.github
