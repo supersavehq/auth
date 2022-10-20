@@ -53,6 +53,9 @@ export type Config = {
   refreshTokenExpiration: number;
   notSecuredEndpoints: RegExp[];
   securedEndpoints: RegExp[];
+  callbacks?: {
+    registration?: (user: User) => void | Promise<void>;
+  };
 };
 
 export type ProvidedConfig = Partial<Config>;

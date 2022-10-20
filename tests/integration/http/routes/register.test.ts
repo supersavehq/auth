@@ -49,6 +49,46 @@ describe('register', () => {
     }
   );
 
+  it('invokes the registration callback if configured', async () => {
+    const superSave = await getSuperSave();
+
+    const registrationCallback = jest.fn();
+
+    const app = express();
+    app.use(express.json());
+    const { router } = await superSaveAuth(superSave, {
+      tokenSecret: 'secure',
+      callbacks: {
+        registration: registrationCallback,
+      },
+    });
+    app.use('/auth', router);
+
+    // Run
+    const request = { email: 'user@example.com', password: 'fastpass' };
+    const response = await supertest(app)
+      .post('/auth/register')
+      .send(request)
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    // Assert
+    expect(response.body.data.success).toBe(true);
+    const userRepository = await getUserRepository(superSave);
+    const users = await userRepository.getByQuery(
+      userRepository.createQuery().eq('email', 'user@example.com')
+    );
+    expect(users).toHaveLength(1);
+    expect(users[0]?.name).toBeUndefined();
+
+    const refreshTokenRepository = getRefreshTokenRepository(superSave);
+    const token = await refreshTokenRepository.getById(
+      response.body.data.refreshToken
+    );
+    expect(token).toBeDefined();
+    expect(registrationCallback).toBeCalled();
+  });
+
   it('returns unsuccesful on existing user.', async () => {
     const superSave = await getSuperSave();
 

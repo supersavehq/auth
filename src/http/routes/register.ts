@@ -61,5 +61,9 @@ export const register = (superSave: SuperSave, config: Config) =>
         refreshToken: tokens.refreshToken,
       },
     };
+
+    if (config.callbacks?.registration) {
+      config.callbacks.registration(createdUser);
+    }
     res.json(response);
   };

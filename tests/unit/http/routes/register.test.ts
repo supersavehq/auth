@@ -105,4 +105,29 @@ describe('register', () => {
     );
     expect(token).toBeDefined();
   });
+
+  it('invokes the registration callback after a succesful registration', async () => {
+    const superSave = await getSuperSave();
+
+    const registrationCallback = jest.fn();
+    const handler = register(superSave, {
+      ...getConfig(),
+      callbacks: { registration: registrationCallback },
+    });
+
+    const request = { body: { email: 'user@example.com', password: 'foobar' } };
+    const jsonMock = jest.fn();
+    const response = {
+      json: jsonMock,
+    };
+    await handler(request as Request, response as unknown as Response);
+
+    expect(jsonMock).toHaveBeenCalled();
+    expect(jsonMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ success: true }),
+      })
+    );
+    expect(registrationCallback).toBeCalled();
+  });
 });
