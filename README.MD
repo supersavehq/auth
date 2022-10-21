@@ -60,13 +60,13 @@ The configurations options are:
 | refreshTokenExpiration | No       | number (seconds) | 7776000 (3 months) | How many seconds it takes for the refresh token to expire, forcing the user to login again.                                      |
 | notSecuredEndpoints    | No       | RegExp[]         | []                 | One or more RegExps that, if matched again the path, will indicate that that specific path should not be secured.                |
 | securedEndpoints       | No       | RegExp[]         | []                 | The opposite of `notSecuredEndpoints`, any paths that match will require a valid Bearer token.                                   |
-| callbacks              | No       | object           | {}                 | Functions that are invoked when a specific trigger takes place within this package. See below for more information.              |
+| hooks                  | No       | object           | {}                 | Functions that are invoked when a specific trigger takes place within this package. See below for more information.              |
 
 If both `securedEndpoints` and `notSecuredEndpoints` are set, all paths are treated as secure endpoints.
 
-#### Callbacks
+#### Hooks
 
-The callbacks are invoked after their specific trigger is executed. They are all optional.
+The hooks are invoked after their specific trigger is executed. They are all optional.
 
 | Trigger      | Signature                             |
 | ------------ | ------------------------------------- |

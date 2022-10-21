@@ -58,7 +58,7 @@ describe('register', () => {
     app.use(express.json());
     const { router } = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
-      callbacks: {
+      hooks: {
         registration: registrationCallback,
       },
     });

@@ -1,6 +1,6 @@
 {
   "name": "@supersave/auth",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A library that enables developers to easily build authenticated endpoints for a supersave powered API/backend.",
   "main": "build/index.js",
   "scripts": {

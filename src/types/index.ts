@@ -76,7 +76,7 @@ export type Config = {
   refreshTokenExpiration: number;
   notSecuredEndpoints: RegExp[];
   securedEndpoints: RegExp[];
-  callbacks?: {
+  hooks?: {
     registration?: (user: User) => void | Promise<void>;
   };
 };

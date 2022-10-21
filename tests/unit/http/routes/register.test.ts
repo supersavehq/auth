@@ -112,7 +112,7 @@ describe('register', () => {
     const registrationCallback = jest.fn();
     const handler = register(superSave, {
       ...getConfig(),
-      callbacks: { registration: registrationCallback },
+      hooks: { registration: registrationCallback },
     });
 
     const request = { body: { email: 'user@example.com', password: 'foobar' } };

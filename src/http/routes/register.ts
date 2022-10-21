@@ -62,8 +62,8 @@ export const register = (superSave: SuperSave, config: Config) =>
       },
     };
 
-    if (config.callbacks?.registration) {
-      config.callbacks.registration(createdUser);
+    if (config.hooks?.registration) {
+      config.hooks.registration(createdUser);
     }
     res.json(response);
   };
