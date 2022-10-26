@@ -12,54 +12,61 @@ import { clear } from '../../../mysql';
 beforeEach(clear);
 
 describe('register', () => {
-  it.each([undefined, 'the name'])(
-    'registers a user with name %s',
-    async (name?: string) => {
-      const superSave = await getSuperSave();
-
-      const app = express();
-      app.use(express.json());
-      const { router } = await superSaveAuth(superSave, {
-        tokenSecret: 'secure',
-      });
-      app.use('/auth', router);
-
-      // Run
-      const request = { email: 'user@example.com', password: 'fastpass', name };
-      const response = await supertest(app)
-        .post('/auth/register')
-        .send(request)
-        .expect('Content-Type', /json/)
-        .expect(200);
-
-      // Assert
-      expect(response.body.data.success).toBe(true);
-      const userRepository = await getUserRepository(superSave);
-      const users = await userRepository.getByQuery(
-        userRepository.createQuery().eq('email', 'user@example.com')
-      );
-      expect(users).toHaveLength(1);
-      expect(users[0]?.name).toEqual(name);
-
-      const refreshTokenRepository = getRefreshTokenRepository(superSave);
-      const token = await refreshTokenRepository.getById(
-        response.body.data.refreshToken
-      );
-      expect(token).toBeDefined();
-    }
-  );
-
-  it('invokes the registration callback if configured', async () => {
+  it.each([
+    [undefined, undefined],
+    ['the name', undefined],
+  ])('registers a user with name %s', async (name, registrationHook) => {
     const superSave = await getSuperSave();
 
-    const registrationCallback = jest.fn();
+    const app = express();
+    app.use(express.json());
+    const { router } = await superSaveAuth(superSave, {
+      tokenSecret: 'secure',
+      hooks:
+        typeof registrationHook !== 'undefined'
+          ? { registration: registrationHook }
+          : {},
+    });
+    app.use('/auth', router);
+
+    // Run
+    const request = { email: 'user@example.com', password: 'fastpass', name };
+    const response = await supertest(app)
+      .post('/auth/register')
+      .send(request)
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    // Assert
+    expect(response.body.data.success).toBe(true);
+    const userRepository = await getUserRepository(superSave);
+    const users = await userRepository.getByQuery(
+      userRepository.createQuery().eq('email', 'user@example.com')
+    );
+    expect(users).toHaveLength(1);
+    expect(users[0]?.name).toEqual(name);
+
+    const refreshTokenRepository = getRefreshTokenRepository(superSave);
+    const token = await refreshTokenRepository.getById(
+      response.body.data.refreshToken
+    );
+    expect(token).toBeDefined();
+    if (typeof registrationHook !== 'undefined') {
+      expect(registrationHook).toBeCalledWith(users[0]);
+    }
+  });
+
+  it('invokes the registration hook if configured', async () => {
+    const superSave = await getSuperSave();
+
+    const registrationHook = jest.fn();
 
     const app = express();
     app.use(express.json());
     const { router } = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
       hooks: {
-        registration: registrationCallback,
+        registration: registrationHook,
       },
     });
     app.use('/auth', router);
@@ -86,7 +93,7 @@ describe('register', () => {
       response.body.data.refreshToken
     );
     expect(token).toBeDefined();
-    expect(registrationCallback).toBeCalled();
+    expect(registrationHook).toBeCalled();
   });
 
   it('returns unsuccesful on existing user.', async () => {

@@ -50,6 +50,10 @@ export const refresh = (superSave: SuperSave, config: Config) =>
     debug('Updating user lastLogin timestamp %s.', user.lastLogin);
     await userRepository.update(user);
 
+    if (config.hooks?.refresh) {
+      config.hooks.refresh(user);
+    }
+
     const response: RefreshTokenResponse = {
       data: {
         success: true,

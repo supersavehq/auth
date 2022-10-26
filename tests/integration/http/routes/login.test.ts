@@ -56,29 +56,36 @@ describe('login', () => {
     expect(response.body.data.authorized).toBe(false);
   });
 
-  it('returns tokens on a valid password', async () => {
-    const superSave = await getSuperSave();
+  it.each([undefined, jest.fn()])(
+    'returns tokens on a valid password',
+    async (loginHook) => {
+      const superSave = await getSuperSave();
 
-    const app = express();
-    app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
-      tokenSecret: 'secure',
-    });
-    app.use('/auth', router);
+      const app = express();
+      app.use(express.json());
+      const { router } = await superSaveAuth(superSave, {
+        tokenSecret: 'secure',
+        hooks: typeof loginHook !== 'undefined' ? { login: loginHook } : {},
+      });
+      app.use('/auth', router);
 
-    const passwordHash = await hash('password');
-    const user = getUser({ password: passwordHash });
-    const userRepository = getUserRepository(superSave);
-    await userRepository.create(user);
+      const passwordHash = await hash('password');
+      const user = getUser({ password: passwordHash });
+      const userRepository = getUserRepository(superSave);
+      await userRepository.create(user);
 
-    const request = { email: user.email, password: 'password' };
+      const request = { email: user.email, password: 'password' };
 
-    const response = await supertest(app)
-      .post('/auth/login')
-      .send(request)
-      .expect('Content-Type', /json/)
-      .expect(200);
+      const response = await supertest(app)
+        .post('/auth/login')
+        .send(request)
+        .expect('Content-Type', /json/)
+        .expect(200);
 
-    expect(response.body.data.authorized).toBe(true);
-  });
+      expect(response.body.data.authorized).toBe(true);
+      if (typeof loginHook !== 'undefined') {
+        expect(loginHook).toBeCalledWith(user);
+      }
+    }
+  );
 });

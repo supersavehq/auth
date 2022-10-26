@@ -142,37 +142,47 @@ describe('refresh', () => {
     expect(jsonMock).toHaveBeenCalledWith(expectedResponse);
   });
 
-  it('returns success if token was refreshed.', async () => {
-    const superSave = await getSuperSave();
+  it.each([undefined, jest.fn()])(
+    'returns success if token was refreshed.',
+    async (refreshHook) => {
+      const superSave = await getSuperSave();
 
-    const handler = refresh(superSave, getConfig());
+      const handler = refresh(superSave, {
+        ...getConfig(),
+        hooks:
+          typeof refreshHook !== 'undefined' ? { refresh: refreshHook } : {},
+      });
 
-    const userRepository = getUserRepository(superSave);
-    const user = await userRepository.create(getUser());
+      const userRepository = getUserRepository(superSave);
+      const user = await userRepository.create(getUser());
 
-    const refreshTokenRepository = getRefreshTokenRepository(superSave);
-    await refreshTokenRepository.create({
-      // @ts-expect-error The create interface does not allowed id to be specified, but it does work.
-      id: 'secure-token-id',
-      userId: user.id,
-      expiresAt: timeInSeconds() + 99999,
-    });
+      const refreshTokenRepository = getRefreshTokenRepository(superSave);
+      await refreshTokenRepository.create({
+        // @ts-expect-error The create interface does not allowed id to be specified, but it does work.
+        id: 'secure-token-id',
+        userId: user.id,
+        expiresAt: timeInSeconds() + 99_999,
+      });
 
-    const request = { body: { token: 'secure-token-id' } };
-    const jsonMock = jest.fn();
+      const request = { body: { token: 'secure-token-id' } };
+      const jsonMock = jest.fn();
 
-    const response = {
-      json: jsonMock,
-    };
+      const response = {
+        json: jsonMock,
+      };
 
-    await handler(request as Request, response as unknown as Response);
+      await handler(request as Request, response as unknown as Response);
 
-    expect(jsonMock).toHaveBeenCalled();
-    const expectedResponse: RefreshTokenResponse = expect.objectContaining({
-      data: expect.objectContaining({
-        success: true,
-      }),
-    });
-    expect(jsonMock).toHaveBeenCalledWith(expectedResponse);
-  });
+      expect(jsonMock).toHaveBeenCalled();
+      const expectedResponse: RefreshTokenResponse = expect.objectContaining({
+        data: expect.objectContaining({
+          success: true,
+        }),
+      });
+      expect(jsonMock).toHaveBeenCalledWith(expectedResponse);
+      if (typeof refreshHook !== 'undefined') {
+        expect(refreshHook).toBeCalledWith(user);
+      }
+    }
+  );
 });

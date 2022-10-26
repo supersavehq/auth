@@ -50,6 +50,10 @@ export const login = (superSave: SuperSave, config: Config) =>
     debug('Updating user %s lastLogin timestamp %s.', user.id, user.lastLogin);
     await repository.update(user);
 
+    if (config.hooks?.login) {
+      config.hooks.login(user);
+    }
+
     const response: LoginResponse = {
       data: {
         authorized: true,

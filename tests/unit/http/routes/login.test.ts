@@ -79,28 +79,37 @@ describe('login', () => {
     expect(jsonMock).toHaveBeenCalledWith(expectedResponse);
   });
 
-  it('returns tokens on a valid password', async () => {
-    const superSave = await getSuperSave();
+  it.each([undefined, jest.fn()])(
+    'returns tokens on a valid password',
+    async (loginHook) => {
+      const superSave = await getSuperSave();
 
-    const handler = login(superSave, getConfig());
+      const handler = login(superSave, {
+        ...getConfig(),
+        hooks: typeof loginHook !== 'undefined' ? { login: loginHook } : {},
+      });
 
-    const passwordHash = await hash('password');
-    const user = getUser({ password: passwordHash });
-    const userRepository = getUserRepository(superSave);
-    await userRepository.create(user);
+      const passwordHash = await hash('password');
+      const user = getUser({ password: passwordHash });
+      const userRepository = getUserRepository(superSave);
+      await userRepository.create(user);
 
-    const request = { body: { email: user.email, password: 'password' } };
-    const jsonMock = jest.fn();
-    const response = {
-      json: jsonMock,
-    };
-    await handler(request as Request, response as unknown as Response);
+      const request = { body: { email: user.email, password: 'password' } };
+      const jsonMock = jest.fn();
+      const response = {
+        json: jsonMock,
+      };
+      await handler(request as Request, response as unknown as Response);
 
-    expect(jsonMock).toHaveBeenCalled();
-    expect(jsonMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ authorized: true }),
-      })
-    );
-  });
+      expect(jsonMock).toHaveBeenCalled();
+      expect(jsonMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ authorized: true }),
+        })
+      );
+      if (typeof loginHook !== 'undefined') {
+        expect(loginHook).toBeCalledWith(user);
+      }
+    }
+  );
 });

@@ -77,7 +77,9 @@ export type Config = {
   notSecuredEndpoints: RegExp[];
   securedEndpoints: RegExp[];
   hooks?: {
-    registration?: (user: User) => void | Promise<void>;
+    registration?: <T extends User = User>(user: T) => void | Promise<void>;
+    login?: <T extends User = User>(user: T) => void | Promise<void>;
+    refresh?: <T extends User = User>(user: T) => void | Promise<void>;
   };
 };
 
