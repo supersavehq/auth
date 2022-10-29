@@ -1,6 +1,6 @@
 import type { SuperSave } from 'supersave';
 import express from 'express';
-import { login, register, refresh } from './http/routes';
+import { login, register, refresh, changePassword } from './http/routes';
 import { initializeDb } from './db';
 import type { Config, ProvidedConfig } from './types';
 import { authenticate } from './http/middleware';
@@ -39,6 +39,11 @@ export async function superSaveAuth(
   router.post('/login', login(superSave, config));
   router.post('/register', register(superSave, config));
   router.post('/refresh', refresh(superSave, config));
+  router.post(
+    '/change-password',
+    authenticate(config),
+    changePassword(superSave, config)
+  );
 
   return {
     router,

@@ -1,25 +1,28 @@
 /* eslint-disable unicorn/no-useless-undefined */
 import type { Request, Response } from 'express';
+import { when } from 'jest-when';
 import { getSuperSave } from '../../../utils/db';
-import { login } from '../../../../src/http/routes';
-import type { LoginResponse } from '../../../../src/types';
+import { changePassword } from '../../../../src/http/routes';
+import type { ChangePasswordResponseSuccess } from '../../../../src/types';
 import { getUser } from '../../../utils/fixtures';
-import { hash } from '../../../../src/auth/hash';
 import { getUserRepository } from '../../../../src/db';
 import { getConfig } from '../../../utils/config';
 import { clear } from '../../../mysql';
-import { checkPassword, generateTokens } from '../../../../src/auth';
+import { checkPassword, generateTokens, hash } from '../../../../src/auth';
 
 jest.mock('../../../../src/auth', () => {
   return {
     checkPassword: jest.fn(),
     generateTokens: jest.fn(),
+    hash: {
+      hash: jest.fn(),
+    },
   };
 });
 
 beforeEach(clear);
 
-describe('login', () => {
+describe('change-password', () => {
   it.each([{}, { username: 'user@example.com' }, { password: 'pass' }])(
     'returns a bad request error',
     async (requestBody) => {
@@ -31,7 +34,7 @@ describe('login', () => {
       // @ts-expect-error Type checks are not understanding it.
       checkPasswordMock.mockResolvedValue(undefined);
 
-      const handler = login(superSave, getConfig());
+      const handler = changePassword(superSave, getConfig());
 
       const request = { body: requestBody };
       const jsonMock = jest.fn();
@@ -55,18 +58,23 @@ describe('login', () => {
     // @ts-expect-error Type checks are not understanding it.
     checkPasswordMock.mockResolvedValue(false);
 
-    const handler = login(superSave, getConfig());
+    const handler = changePassword(superSave, getConfig());
 
     const request = { body: { email: 'user@example.com', password: 'foobar' } };
+    const statusMock = jest.fn();
     const jsonMock = jest.fn();
     const response = {
+      status: statusMock,
       json: jsonMock,
     };
+    statusMock.mockReturnValue(response);
+
     await handler(request as Request, response as unknown as Response);
 
     expect(jsonMock).toHaveBeenCalled();
-    const expectedResponse: LoginResponse = { data: { authorized: false } };
+    const expectedResponse = { message: 'Could not authorize user.' };
     expect(jsonMock).toHaveBeenCalledWith(expectedResponse);
+    expect(statusMock).toBeCalledWith(400);
   });
 
   it('fails on an invalid password', async () => {
@@ -78,33 +86,67 @@ describe('login', () => {
     // @ts-expect-error Type checks are not understanding it.
     checkPasswordMock.mockResolvedValue(false);
 
-    const handler = login(superSave, getConfig());
+    const handler = changePassword(superSave, getConfig());
 
-    const passwordHash = await hash('password');
+    const passwordHash = await hash.hash('password');
     const user = getUser({ password: passwordHash });
     const userRepository = getUserRepository(superSave);
     await userRepository.create(user);
 
     const request = { body: { email: user.email, password: 'foobar' } };
     const jsonMock = jest.fn();
+    const statusMock = jest.fn();
     const response = {
       json: jsonMock,
+      status: statusMock,
     };
+    statusMock.mockReturnValue(response);
+
     await handler(request as Request, response as unknown as Response);
 
     expect(jsonMock).toHaveBeenCalled();
-    const expectedResponse: LoginResponse = { data: { authorized: false } };
-    expect(jsonMock).toHaveBeenCalledWith(expectedResponse);
+    expect(statusMock).toHaveBeenCalledWith(400);
+  });
+
+  it('fails on an missing new password', async () => {
+    const superSave = await getSuperSave();
+
+    const passwordHash = await hash.hash('password');
+    const userRepository = getUserRepository(superSave);
+    const user = await userRepository.create(
+      getUser({ password: passwordHash })
+    );
+
+    const checkPasswordMock = checkPassword as unknown as jest.Mock<
+      typeof checkPassword
+    >;
+    // @ts-expect-error Type checks are not understanding it.
+    checkPasswordMock.mockResolvedValue(user);
+
+    const handler = changePassword(superSave, getConfig());
+
+    const request = { body: { email: user.email, password: 'foobar' } };
+    const jsonMock = jest.fn();
+    const statusMock = jest.fn();
+    const response = {
+      json: jsonMock,
+      status: statusMock,
+    };
+    statusMock.mockReturnValue(response);
+
+    await handler(request as Request, response as unknown as Response);
+
+    expect(jsonMock).toHaveBeenCalled();
+    expect(statusMock).toHaveBeenCalledWith(400);
   });
 
   it.each([undefined, jest.fn()])(
-    'returns tokens on a valid password',
-    async (loginHook) => {
+    'changes password on correct input',
+    async (changePasswordHook) => {
       const superSave = await getSuperSave();
 
-      const passwordHash = await hash('password');
+      const passwordHash = await hash.hash('password');
       const user = getUser({ password: passwordHash });
-
       const checkPasswordMock = checkPassword as unknown as jest.Mock<
         typeof checkPassword
       >;
@@ -123,32 +165,42 @@ describe('login', () => {
         refreshToken: REFRESH_TOKEN,
       });
 
-      const handler = login(superSave, {
+      const handler = changePassword(superSave, {
         ...getConfig(),
-        hooks: typeof loginHook !== 'undefined' ? { login: loginHook } : {},
+        hooks:
+          typeof changePasswordHook !== 'undefined'
+            ? { changePassword: changePasswordHook }
+            : {},
       });
 
       const userRepository = getUserRepository(superSave);
       await userRepository.create(user);
 
-      const request = { body: { email: user.email, password: 'password' } };
+      const request = {
+        body: { email: user.email, password: 'foobar', newPassword: 'foobar2' },
+      };
       const jsonMock = jest.fn();
+      const statusMock = jest.fn();
       const response = {
         json: jsonMock,
+        status: statusMock,
       };
       await handler(request as Request, response as unknown as Response);
 
       expect(jsonMock).toHaveBeenCalled();
-      expect(jsonMock).toHaveBeenCalledWith({
+      expect(statusMock).not.toHaveBeenCalled();
+      const result: ChangePasswordResponseSuccess = {
         data: {
-          authorized: true,
           accessToken: ACCESS_TOKEN,
           refreshToken: REFRESH_TOKEN,
         },
-      });
-      if (typeof loginHook !== 'undefined') {
-        expect(loginHook).toBeCalledWith(user);
+      };
+      expect(jsonMock).toHaveBeenCalledWith(result);
+      if (typeof changePasswordHook !== 'undefined') {
+        expect(changePasswordHook).toBeCalledWith(user);
       }
+      when(hash.hash).calledWith('foobar').mockResolvedValue('hash-1'); // the invocation in this unit test
+      when(hash.hash).calledWith('foobar2').mockResolvedValue('hash-2'); // the invocation for the new password
     }
   );
 });
