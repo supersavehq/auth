@@ -5,7 +5,7 @@ import {
   getRefreshTokenRepository,
   getUserRepository,
 } from '../../../../src/db';
-import { superSaveAuth } from '../../../../build';
+import { superSaveAuth } from '../../../..';
 import { getUser } from '../../../utils/fixtures';
 import { clear } from '../../../mysql';
 

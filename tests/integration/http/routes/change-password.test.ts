@@ -4,7 +4,7 @@ import { getSuperSave } from '../../../utils/db';
 import { getUser } from '../../../utils/fixtures';
 import { hash } from '../../../../src/auth/hash';
 import { getUserRepository } from '../../../../src/db';
-import { superSaveAuth } from '../../../../build';
+import { superSaveAuth } from '../../../..';
 import { clear } from '../../../mysql';
 
 beforeEach(clear);
@@ -160,7 +160,10 @@ describe('change-password', () => {
       expect(response.body.data.accessToken).toBeDefined();
       expect(response.body.data.refreshToken).toBeDefined();
       if (typeof changePasswordHook !== 'undefined') {
-        expect(changePasswordHook).toBeCalledWith(user);
+        expect(changePasswordHook).toBeCalledWith(
+          // We check on the partial value, because the lastLogin timestamp updates and can cause timing issues.
+          expect.objectContaining({ email: user.email })
+        );
       }
 
       // validate that the refresh token has been invalidated.

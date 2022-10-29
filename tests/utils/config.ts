@@ -5,6 +5,7 @@ const DEFAULT_CONFIG: Config = {
   tokenAlgorithm: 'HS512',
   accessTokenExpiration: 300,
   refreshTokenExpiration: 3600 * 24 * 90, // 3 months,
+  resetPasswordTokenExpiration: 3600, // 1 hour
   notSecuredEndpoints: [],
   securedEndpoints: [],
 };

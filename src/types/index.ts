@@ -1,11 +1,5 @@
-export type User = {
-  id: string;
-  name?: string | undefined;
-  email: string;
-  password: string;
-  created: number;
-  lastLogin: number;
-};
+import type { User } from './db';
+export { User } from './db';
 
 export type Tokens = {
   accessToken: string;
@@ -29,12 +23,6 @@ export type LoginResponseFailure = {
 
 export type ErrorResponse = {
   message: string;
-};
-
-export type RefreshToken = {
-  id: string;
-  userId: string;
-  expiresAt: number;
 };
 
 export type RegistrationResponse =
@@ -69,18 +57,23 @@ export type RefreshTokenResponseFailure = {
   };
 };
 
-export type Config = {
+export type Config<T extends User = User> = {
   tokenSecret: string;
   tokenAlgorithm: string;
   accessTokenExpiration: number;
   refreshTokenExpiration: number;
+  resetPasswordTokenExpiration: number;
   notSecuredEndpoints: RegExp[];
   securedEndpoints: RegExp[];
   hooks?: {
-    registration?: <T extends User = User>(user: T) => void | Promise<void>;
-    login?: <T extends User = User>(user: T) => void | Promise<void>;
-    refresh?: <T extends User = User>(user: T) => void | Promise<void>;
-    changePassword?: <T extends User = User>(user: T) => void | Promise<void>;
+    registration?: (user: T) => void | Promise<void>;
+    login?: (user: T) => void | Promise<void>;
+    refresh?: (user: T) => void | Promise<void>;
+    changePassword?: (user: T) => void | Promise<void>;
+    requestResetPassword?: (
+      user: T,
+      identifier: string
+    ) => void | Promise<void>;
   };
 };
 
@@ -98,4 +91,8 @@ export type ChangePasswordResponseSuccess = {
     accessToken: string;
     refreshToken: string;
   };
+};
+
+export type RequestResetPasswordRequest = {
+  email: string;
 };

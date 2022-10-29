@@ -6,7 +6,7 @@ import {
   getRefreshTokenRepository,
   getUserRepository,
 } from '../../../../src/db';
-import { superSaveAuth } from '../../../../build';
+import { superSaveAuth } from '../../../..';
 import { timeInSeconds } from '../../../../src/utils';
 import { clear } from '../../../mysql';
 

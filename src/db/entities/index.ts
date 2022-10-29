@@ -4,6 +4,7 @@ export const NAMESPACE = 'auth';
 
 export const USER = 'user';
 export const REFRESH_TOKEN = 'refreshtoken';
+export const RESET_PASSWORD_TOKEN = 'resettoken';
 
 export const User: EntityDefinition = {
   name: USER,
@@ -21,6 +22,18 @@ export const RefreshToken: EntityDefinition = {
   template: {},
   relations: [],
   filterSortFields: {
+    userId: 'string',
+  },
+};
+
+export const ResetPasswordToken: EntityDefinition = {
+  name: RESET_PASSWORD_TOKEN,
+  namespace: NAMESPACE,
+  template: {},
+  relations: [],
+  filterSortFields: {
+    identifier: 'string',
+    expires: 'number',
     userId: 'string',
   },
 };
