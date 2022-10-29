@@ -84,7 +84,10 @@ describe('login', () => {
 
       expect(response.body.data.authorized).toBe(true);
       if (typeof loginHook !== 'undefined') {
-        expect(loginHook).toBeCalledWith(user);
+        expect(loginHook).toBeCalledWith(
+          // We check on the partial value, because the lastLogin timestamp updates and can cause timing issues.
+          expect.objectContaining({ email: user.email })
+        );
       }
     }
   );

@@ -67,10 +67,15 @@ If both `securedEndpoints` and `notSecuredEndpoints` are set, all paths are trea
 #### Hooks
 
 The hooks are invoked after their specific trigger is executed. They are all optional.
+An example use case is to send out e-mails for a trigger, for example when the
+password changes.
 
-| Trigger      | Signature                             |
-| ------------ | ------------------------------------- |
-| registration | (user: User) => void \| Promise<void> |
+| Trigger        | Signature                             |
+| -------------- | ------------------------------------- |
+| registration   | (user: User) => void \| Promise<void> |
+| login          | (user: User) => void \| Promise<void> |
+| refresh        | (user: User) => void \| Promise<void> |
+| changePassword | (user: User) => void \| Promise<void> |
 
 ## HTTP Endpoints
 
@@ -112,7 +117,7 @@ The `refreshToken` is used in the `refresh` endpoint to obtain a new accessToken
 
 ### Login
 
-Is used to login a user and obtain its credentials. The endpoint is `/<prefix>/login`
+Is used to login a user and obtain its credentials. The endpoint is `/<prefix>/login`.
 
 ```typescript
 // Login request
@@ -140,7 +145,7 @@ export type LoginResponseFailed = {
 
 ### Refresh
 
-The refresh endpoint is used to exchange the refreshToken for a new accessToken.
+The refresh endpoint is used to exchange the refreshToken for a new accessToken. Its location is `/<prefix>/post`, and must be invoked using `POST`.
 
 ```typescript
 // Request
@@ -159,6 +164,31 @@ export type RefreshResponseSuccess = {
 export type RefreshResponseFailed = {
   data: {
     success: false;
+  };
+};
+```
+
+### Change Password
+
+This endpoint can be used to change the password for a user. It requires a valid accessToken in the `Authorization: Bearer <token>` header.. Its location is `/<prefix>/post`, and must be invoked using `POST`.
+
+If the provided original password is not correct, a 400 (Bad Request) response will be returned.
+
+When the password is successfully changed all existing refreshTokens will be invalidated.
+
+```typescript
+// Request
+export type ChangePasswordRequest = {
+  email: string;
+  password: string;
+  newPassword: string;
+};
+
+// Response
+export type ChangePasswordResponseSuccess = {
+  data: {
+    accessToken: string;
+    refreshToken: string;
   };
 };
 ```

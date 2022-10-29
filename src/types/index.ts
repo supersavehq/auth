@@ -80,6 +80,7 @@ export type Config = {
     registration?: <T extends User = User>(user: T) => void | Promise<void>;
     login?: <T extends User = User>(user: T) => void | Promise<void>;
     refresh?: <T extends User = User>(user: T) => void | Promise<void>;
+    changePassword?: <T extends User = User>(user: T) => void | Promise<void>;
   };
 };
 
@@ -90,4 +91,11 @@ export type CollectionEntityWithUserId = {
   userId: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
+};
+
+export type ChangePasswordResponseSuccess = {
+  data: {
+    accessToken: string;
+    refreshToken: string;
+  };
 };
