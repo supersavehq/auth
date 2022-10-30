@@ -74,6 +74,7 @@ export type Config<T extends User = User> = {
       user: T,
       identifier: string
     ) => void | Promise<void>;
+    doResetPassword?: (user: T) => void | Promise<void>;
   };
 };
 
@@ -96,3 +97,27 @@ export type ChangePasswordResponseSuccess = {
 export type RequestResetPasswordRequest = {
   email: string;
 };
+
+export type DoResetPasswordRequest = {
+  password: string;
+  token: string;
+};
+
+export type DoResetPasswordResponseFailed = {
+  data: {
+    success: false;
+    reason: 'INVALID_TOKEN';
+  };
+};
+
+export type DoResetPasswordResponseSuccess = {
+  data: {
+    success: true;
+    accessToken: string;
+    refreshToken: string;
+  };
+};
+
+export type DoResetPasswordResponse =
+  | DoResetPasswordResponseFailed
+  | DoResetPasswordResponseSuccess;

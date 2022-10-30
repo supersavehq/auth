@@ -78,6 +78,7 @@ password changes or a password reset is requested.
 | refresh              | (user: User) => void \| Promise<void>                     |
 | changePassword       | (user: User) => void \| Promise<void>                     |
 | requestResetPassword | (user: User, identifier: string) => void \| Promise<void> |
+| doResetPassword      | (user: User => void \| Promise<void>                      |
 
 ## HTTP Endpoints
 
@@ -212,6 +213,43 @@ export type RequestResetPasswordRequest = {
 // Response
 // A HTTP 201 status code. The response will be the same, regardless if the user account
 // has been found. The requestResetPassword hook will not be invoked if the account is not found.
+```
+
+### Do Reset Password
+
+When a user receives a reset password token, use this endpoint to use the token to change the password. Its endpoint
+is `/<prefix>/do-reset-password`. On success, it will return a new refresh and access token.
+
+`INVALID_TOKEN` is currently the only reason for the request failing.
+
+All existing refresh tokens are invalidated.
+
+```typescript
+// Request
+export type DoResetPasswordRequest = {
+  password: string;
+  token: string;
+};
+
+export type DoResetPasswordResponseFailed = {
+  data: {
+    success: false;
+    reason: 'INVALID_TOKEN';
+  };
+};
+
+export type DoResetPasswordResponseSuccess = {
+  data: {
+    success: true;
+    accessToken: string;
+    refreshToken: string;
+  };
+};
+
+// Response
+export type DoResetPasswordResponse =
+  | DoResetPasswordResponseFailed
+  | DoResetPasswordResponseSuccess;
 ```
 
 ## Development

@@ -5,6 +5,7 @@ import { generateTokens, hash } from '../../auth';
 import { checkPassword } from '../../auth';
 import { getRefreshTokenRepository, getUserRepository } from '../../db';
 import type { ChangePasswordResponseSuccess, Config } from '../../types';
+import { timeInSeconds } from '../../utils';
 
 const debug = Debug('supersave:auth:change-password');
 
@@ -35,6 +36,7 @@ export const changePassword = (superSave: SuperSave, config: Config) =>
     debug('Updating the password.');
     const userRepository = await getUserRepository(superSave);
     user.password = await hash.hash(newPassword);
+    user.lastLogin = timeInSeconds();
     await userRepository.update(user);
 
     debug('Invalidating all refresh tokens.');

@@ -129,7 +129,7 @@ describe('change-password', () => {
         tokenSecret: 'secure',
         hooks:
           typeof changePasswordHook !== 'undefined'
-            ? { login: changePasswordHook }
+            ? { changePassword: changePasswordHook }
             : {},
       });
       app.use('/auth', router);
@@ -183,6 +183,12 @@ describe('change-password', () => {
         .expect(200);
 
       expect(loginResponse.body.data.authorized).toBe(true);
+      if (typeof changePasswordHook !== 'undefined') {
+        expect(changePasswordHook).toBeCalledWith(
+          // We check on the partial value, because the lastLogin timestamp updates and can cause timing issues.
+          expect.objectContaining({ email: user.email })
+        );
+      }
     }
   );
 });

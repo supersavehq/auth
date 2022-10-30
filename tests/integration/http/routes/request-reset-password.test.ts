@@ -14,7 +14,7 @@ const PASSWORD = 'foo-bar';
 
 beforeEach(clear);
 
-describe('reset password', () => {
+describe('request reset password', () => {
   it('returns OK an a non-existing user', async () => {
     const superSave = await getSuperSave();
 
@@ -25,7 +25,9 @@ describe('reset password', () => {
     });
     app.use('/auth', router);
 
-    const request: RequestResetPasswordRequest = { email: 'user@example.com' };
+    const request: RequestResetPasswordRequest = {
+      email: 'user@example.com',
+    };
 
     await supertest(app).post('/auth/reset-password').send(request).expect(201);
   });
@@ -71,7 +73,7 @@ describe('reset password', () => {
     }
   );
 
-  it('invalidates an already existing token for the', async () => {
+  it('invalidates an already existing token for the same user', async () => {
     const superSave = await getSuperSave();
 
     const app = express();

@@ -6,6 +6,7 @@ import {
   refresh,
   changePassword,
   requestResetPassword,
+  doResetPassword,
 } from './http/routes';
 import { initializeDb } from './db';
 import type { Config, ProvidedConfig } from './types';
@@ -61,6 +62,10 @@ export async function superSaveAuth(
   router.post(
     '/reset-password',
     asyncCatch(requestResetPassword(superSave, config))
+  );
+  router.post(
+    '/do-reset-password',
+    asyncCatch(doResetPassword(superSave, config))
   );
 
   return {
