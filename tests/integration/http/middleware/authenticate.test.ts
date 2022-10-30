@@ -1,14 +1,21 @@
+/* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
 import supertest from 'supertest';
 import { getUser } from '../../../utils/fixtures';
 import { hash } from '../../../../src/auth/hash';
 import { getUserRepository } from '../../../../src/db';
 import { getSuperSave } from '../../../utils/db';
-import { superSaveAuth, ProvidedConfig } from '../../../../build';
+import { superSaveAuth, ProvidedConfig } from '../../../..';
 import { clear } from '../../../mysql';
 
+/* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
+let authStop: () => void;
+
 beforeEach(clear);
-afterEach(() => jest.useRealTimers());
+afterEach(() => {
+  jest.useRealTimers();
+  authStop();
+});
 
 describe('authenticate', () => {
   it('successfully validated a valid token', async () => {
@@ -16,9 +23,13 @@ describe('authenticate', () => {
 
     const app = express();
     app.use(express.json());
-    const { router, middleware } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router, middleware } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
     app.get('/hello', middleware.authenticate, (_req, res) =>
       res.send(res.locals['auth'].userId)
@@ -50,9 +61,12 @@ describe('authenticate', () => {
 
     const app = express();
     app.use(express.json());
-    const { router, middleware } = await superSaveAuth(superSave, {
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router, middleware } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
     app.get('/hello', middleware.authenticate, (_req, res) =>
       res.send(res.locals['auth'].userId)
@@ -63,7 +77,7 @@ describe('authenticate', () => {
 
   it('rejects an outdated token.', async () => {
     // Set time in the past to generate an old token
-    const now = new Date().getTime();
+    const now = Date.now();
     jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime());
 
     // initialize
@@ -71,9 +85,13 @@ describe('authenticate', () => {
 
     const app = express();
     app.use(express.json());
-    const { router, middleware } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router, middleware } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
     app.get('/hello', middleware.authenticate, (_req, res) =>
       res.send(res.locals['auth'].userId)
@@ -115,7 +133,11 @@ describe('it allows not secured endpoints', () => {
 
     const app = express();
     app.use(express.json());
-    const { router, middleware } = await superSaveAuth(superSave, config);
+
+    const auth = await superSaveAuth(superSave, config);
+    const { router, middleware } = auth;
+    authStop = auth.stop;
+
     app.use('/', router);
     app.get('/hello', middleware.authenticate, (_req, res) =>
       res.send('hi there!')
@@ -129,7 +151,13 @@ describe('it allows not secured endpoints', () => {
 
     const app = express();
     app.use(express.json());
-    const { router, middleware } = await superSaveAuth(superSave, config);
+
+    const auth = await superSaveAuth(superSave, {
+      tokenSecret: 'secure',
+    });
+    const { router, middleware } = auth;
+    authStop = auth.stop;
+
     app.use('/', router);
     app.get('/hello', middleware.authenticate, (_req, res) =>
       res.send('hi there!')
@@ -153,7 +181,11 @@ describe('it only secures configured endpoints', () => {
 
     const app = express();
     app.use(express.json());
-    const { router, middleware } = await superSaveAuth(superSave, config);
+
+    const auth = await superSaveAuth(superSave, config);
+    const { router, middleware } = auth;
+    authStop = auth.stop;
+
     app.use('/', middleware.authenticate, router);
     app.get('/hello', (_req, res) => res.send('hi there!'));
 
@@ -165,7 +197,11 @@ describe('it only secures configured endpoints', () => {
 
     const app = express();
     app.use(express.json());
-    const { router, middleware } = await superSaveAuth(superSave, config);
+
+    const auth = await superSaveAuth(superSave, config);
+    const { router, middleware } = auth;
+    authStop = auth.stop;
+
     app.use('/', router);
     app.get('/hello', middleware.authenticate, (_req, res) =>
       res.send('hi there!')

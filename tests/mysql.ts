@@ -4,7 +4,7 @@ import mysql, { Connection } from 'mysql';
 export const clear = async (): Promise<void> => {
   const connectionString = getConnection();
 
-  if (connectionString.substring(0, 9) === 'sqlite://') {
+  if (connectionString.slice(0, 9) === 'sqlite://') {
     return;
   }
 

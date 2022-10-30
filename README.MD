@@ -26,16 +26,18 @@ If the accessToken is not valid, a 401 HTTP response code will be returned.
 
 First, make sure you have a configured instance of `supersave` available. Then, create a new `auth` instance using this db.
 
-    const { router, middleware, addCollection } = await superSaveAuth(superSave, {
+    const { router, middleware, addCollection, stop } = await superSaveAuth(superSave, {
       tokenSecret: 'xxx',
       accessTokenExpiration: 300,
     });
 
-The three returned parameters can then be used to respectively:
+The four returned parameters can then be used to respectively:
 
 1. Register the router for the `auth` endpoints
 2. Middleware that you can use to protect your own custom routes. It will check if the Bearer token is provided, and will place a `userId` variable in `response.locals` of the express Response variable of your handler. Currently only `authenticate` is supported.
 3. The function to use to add secured collections.
+4. Stop the internal clean up process and stop the related timer interval. The interval is automatically started on initialization, and keeps
+   running until the process stops, or this method is invoked.
 
 ```
 // Initialization of the routes
@@ -52,15 +54,16 @@ await addCollection(entities.Environment);
 
 The configurations options are:
 
-| Name                   | Required | Type             | Default            | Description                                                                                                                      |
-| ---------------------- | -------- | ---------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| tokenSecret            | Yes      | string           |                    | The secret that is used to sign the JWT. It should not be guessable and is not to be read by other processes.                    |
-| tokenAlgorithm         | No       | string           | HS512              | See [njwt](https://www.npmjs.com/package/njwt#user-content-supported-algorithms) for a list of supported JWT signing algorithms. |
-| accessTokenExpiration  | No       | number (seconds) | 300                | How many seconds it takes for the JWT token to expire, requiring the fetching of a new accessToken using the refreshToken.       |
-| refreshTokenExpiration | No       | number (seconds) | 7776000 (3 months) | How many seconds it takes for the refresh token to expire, forcing the user to login again.                                      |
-| notSecuredEndpoints    | No       | RegExp[]         | []                 | One or more RegExps that, if matched again the path, will indicate that that specific path should not be secured.                |
-| securedEndpoints       | No       | RegExp[]         | []                 | The opposite of `notSecuredEndpoints`, any paths that match will require a valid Bearer token.                                   |
-| hooks                  | No       | object           | {}                 | Functions that are invoked when a specific trigger takes place within this package. See below for more information.              |
+| Name                         | Required | Type             | Default            | Description                                                                                                                      |
+| ---------------------------- | -------- | ---------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| tokenSecret                  | Yes      | string           |                    | The secret that is used to sign the JWT. It should not be guessable and is not to be read by other processes.                    |
+| tokenAlgorithm               | No       | string           | HS512              | See [njwt](https://www.npmjs.com/package/njwt#user-content-supported-algorithms) for a list of supported JWT signing algorithms. |
+| accessTokenExpiration        | No       | number (seconds) | 300                | How many seconds it takes for the JWT token to expire, requiring the fetching of a new accessToken using the refreshToken.       |
+| refreshTokenExpiration       | No       | number (seconds) | 7776000 (3 months) | How many seconds it takes for the refresh token to expire, forcing the user to login again.                                      |
+| resetPasswordTokenExpiration | No       | number           | 3600               | The validity duration (in seconds) of a generated password reset token.                                                          |
+| notSecuredEndpoints          | No       | RegExp[]         | []                 | One or more RegExps that, if matched again the path, will indicate that that specific path should not be secured.                |
+| securedEndpoints             | No       | RegExp[]         | []                 | The opposite of `notSecuredEndpoints`, any paths that match will require a valid Bearer token.                                   |
+| hooks                        | No       | object           | {}                 | Functions that are invoked when a specific trigger takes place within this package. See below for more information.              |
 
 If both `securedEndpoints` and `notSecuredEndpoints` are set, all paths are treated as secure endpoints.
 
@@ -68,14 +71,16 @@ If both `securedEndpoints` and `notSecuredEndpoints` are set, all paths are trea
 
 The hooks are invoked after their specific trigger is executed. They are all optional.
 An example use case is to send out e-mails for a trigger, for example when the
-password changes.
+password changes or a password reset is requested.
 
-| Trigger        | Signature                             |
-| -------------- | ------------------------------------- |
-| registration   | (user: User) => void \| Promise<void> |
-| login          | (user: User) => void \| Promise<void> |
-| refresh        | (user: User) => void \| Promise<void> |
-| changePassword | (user: User) => void \| Promise<void> |
+| Trigger              | Signature                                                 |
+| -------------------- | --------------------------------------------------------- |
+| registration         | (user: User) => void \| Promise<void>                     |
+| login                | (user: User) => void \| Promise<void>                     |
+| refresh              | (user: User) => void \| Promise<void>                     |
+| changePassword       | (user: User) => void \| Promise<void>                     |
+| requestResetPassword | (user: User, identifier: string) => void \| Promise<void> |
+| doResetPassword      | (user: User => void \| Promise<void>                      |
 
 ## HTTP Endpoints
 
@@ -191,6 +196,62 @@ export type ChangePasswordResponseSuccess = {
     refreshToken: string;
   };
 };
+```
+
+### Request Reset Password
+
+This endpoint will generate a reset token for a user. Its path is `/<prefix>/reset-password`. For this method
+you should also register a `requestResetPassword` hook, to send the URL with the identifier included to the user,
+to start the flow.
+
+If the endpoint is invoked twice, the code from the request is invalidated, only the last generated reset token is valid.
+
+```typescript
+// Request
+export type RequestResetPasswordRequest = {
+  email: string;
+};
+
+// Response
+// A HTTP 201 status code. The response will be the same, regardless if the user account
+// has been found. The requestResetPassword hook will not be invoked if the account is not found.
+```
+
+### Do Reset Password
+
+When a user receives a reset password token, use this endpoint to use the token to change the password. Its endpoint
+is `/<prefix>/do-reset-password`. On success, it will return a new refresh and access token.
+
+`INVALID_TOKEN` is currently the only reason for the request failing.
+
+All existing refresh tokens are invalidated.
+
+```typescript
+// Request
+export type DoResetPasswordRequest = {
+  password: string;
+  token: string;
+};
+
+export type DoResetPasswordResponseFailed = {
+  data: {
+    success: false;
+    reason: 'INVALID_TOKEN';
+  };
+};
+
+export type DoResetPasswordResponseSuccess = {
+  data: {
+    success: true;
+    accessToken: string;
+    refreshToken: string;
+  };
+};
+
+// Response
+export type DoResetPasswordResponse =
+  | DoResetPasswordResponseFailed
+  | DoResetPasswordResponseSuccess;
 ```
 
 ## Development

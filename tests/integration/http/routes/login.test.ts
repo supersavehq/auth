@@ -1,13 +1,20 @@
+/* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
 import supertest from 'supertest';
 import { getSuperSave } from '../../../utils/db';
 import { getUser } from '../../../utils/fixtures';
 import { hash } from '../../../../src/auth/hash';
 import { getUserRepository } from '../../../../src/db';
-import { superSaveAuth } from '../../../../build';
+import { superSaveAuth } from '../../../..';
 import { clear } from '../../../mysql';
 
+/* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
+let authStop: () => void;
+
 beforeEach(clear);
+afterEach(() => {
+  authStop();
+});
 
 describe('login', () => {
   it('fails on non-existing account', async () => {
@@ -15,9 +22,13 @@ describe('login', () => {
 
     const app = express();
     app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
 
     const request = { email: 'user@example.com', password: 'foobar' };
@@ -36,9 +47,13 @@ describe('login', () => {
 
     const app = express();
     app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
 
     const passwordHash = await hash('password');
@@ -63,10 +78,14 @@ describe('login', () => {
 
       const app = express();
       app.use(express.json());
-      const { router } = await superSaveAuth(superSave, {
+
+      const auth = await superSaveAuth(superSave, {
         tokenSecret: 'secure',
         hooks: typeof loginHook !== 'undefined' ? { login: loginHook } : {},
       });
+      const { router } = auth;
+      authStop = auth.stop;
+
       app.use('/auth', router);
 
       const passwordHash = await hash('password');
