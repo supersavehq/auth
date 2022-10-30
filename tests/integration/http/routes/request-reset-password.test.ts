@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
 import { getSuperSave } from '../../../utils/db';
 import { superSaveAuth, RequestResetPasswordRequest } from '../../../..';
@@ -12,7 +13,13 @@ import { clear } from '../../../mysql';
 
 const PASSWORD = 'foo-bar';
 
+/* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
+let authStop: () => void;
+
 beforeEach(clear);
+afterEach(() => {
+  authStop();
+});
 
 describe('request reset password', () => {
   it('returns OK an a non-existing user', async () => {
@@ -20,9 +27,13 @@ describe('request reset password', () => {
 
     const app = express();
     app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
 
     const request: RequestResetPasswordRequest = {
@@ -39,13 +50,17 @@ describe('request reset password', () => {
 
       const app = express();
       app.use(express.json());
-      const { router } = await superSaveAuth(superSave, {
+
+      const auth = await superSaveAuth(superSave, {
         tokenSecret: 'secure',
         hooks:
           typeof requestResetPasswordHook !== 'undefined'
             ? { requestResetPassword: requestResetPasswordHook }
             : {},
       });
+      const { router } = auth;
+      authStop = auth.stop;
+
       app.use('/auth', router);
 
       const passwordHash = await hash(PASSWORD);
@@ -78,9 +93,13 @@ describe('request reset password', () => {
 
     const app = express();
     app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
 
     const passwordHash = await hash(PASSWORD);

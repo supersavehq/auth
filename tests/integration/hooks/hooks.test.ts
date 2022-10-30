@@ -1,10 +1,15 @@
 import express from 'express';
 import { Collection, EntityDefinition, SuperSave } from 'supersave';
 import supertest from 'supertest';
-import { superSaveAuth, User } from '../../../build';
+import { superSaveAuth, User } from '../../..';
 import { getUserRepository } from '../../../src/db';
 import { hash } from '../../../src/auth';
 import getConnection from '../../connection';
+
+/* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
+let authStop: () => void;
+
+afterAll(() => authStop());
 
 const USER_ID_1 = 'user1';
 const USER_ID_2 = 'user2';
@@ -100,7 +105,8 @@ const superTest = supertest(app);
 const superSavePromise = SuperSave.create(getConnection()).then(
   (superSave: SuperSave) => {
     return superSaveAuth(superSave, { tokenSecret: 'aaa' })
-      .then(({ router, middleware, addCollection }) => {
+      .then(({ router, middleware, addCollection, stop }) => {
+        authStop = stop; // Store this so we can stop auth when the tests are done.
         return Promise.all([
           addCollection(planetEntity),
           addCollection(moonEntity),

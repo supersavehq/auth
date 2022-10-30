@@ -12,6 +12,7 @@ import { initializeDb } from './db';
 import type { Config, ProvidedConfig } from './types';
 import { authenticate } from './http/middleware';
 import { addCollection } from './hooks';
+import { cleanUp } from './clean-up';
 
 // Makes sure that we can catch an async exception in express.
 function asyncCatch(middleware: RequestHandler) {
@@ -68,11 +69,15 @@ export async function superSaveAuth(
     asyncCatch(doResetPassword(superSave, config))
   );
 
+  // Start the clean up process
+  const stopCleanUp = await cleanUp(superSave);
+
   return {
     router,
     middleware: {
       authenticate: authenticate(config),
     },
     addCollection: addCollection(superSave),
+    stop: () => stopCleanUp(),
   };
 }

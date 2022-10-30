@@ -26,16 +26,18 @@ If the accessToken is not valid, a 401 HTTP response code will be returned.
 
 First, make sure you have a configured instance of `supersave` available. Then, create a new `auth` instance using this db.
 
-    const { router, middleware, addCollection } = await superSaveAuth(superSave, {
+    const { router, middleware, addCollection, stop } = await superSaveAuth(superSave, {
       tokenSecret: 'xxx',
       accessTokenExpiration: 300,
     });
 
-The three returned parameters can then be used to respectively:
+The four returned parameters can then be used to respectively:
 
 1. Register the router for the `auth` endpoints
 2. Middleware that you can use to protect your own custom routes. It will check if the Bearer token is provided, and will place a `userId` variable in `response.locals` of the express Response variable of your handler. Currently only `authenticate` is supported.
 3. The function to use to add secured collections.
+4. Stop the internal clean up process and stop the related timer interval. The interval is automatically started on initialization, and keeps
+   running until the process stops, or this method is invoked.
 
 ```
 // Initialization of the routes

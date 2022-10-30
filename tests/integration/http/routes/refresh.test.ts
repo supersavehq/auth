@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
 import supertest from 'supertest';
 import { getSuperSave } from '../../../utils/db';
@@ -10,7 +11,13 @@ import { superSaveAuth } from '../../../..';
 import { timeInSeconds } from '../../../../src/utils';
 import { clear } from '../../../mysql';
 
+/* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
+let authStop: () => void;
+
 beforeEach(clear);
+afterEach(() => {
+  authStop();
+});
 
 describe('refresh', () => {
   it.each([undefined, jest.fn()])(
@@ -31,11 +38,15 @@ describe('refresh', () => {
 
       const app = express();
       app.use(express.json());
-      const { router } = await superSaveAuth(superSave, {
+
+      const auth = await superSaveAuth(superSave, {
         tokenSecret: 'secure',
         hooks:
           typeof refreshHook !== 'undefined' ? { refresh: refreshHook } : {},
       });
+      const { router } = auth;
+      authStop = auth.stop;
+
       app.use('/auth', router);
 
       const request = { token: 'secure-token-id' };
@@ -59,9 +70,13 @@ describe('refresh', () => {
 
     const app = express();
     app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
 
     const request = { token: 'secure-token-id' };

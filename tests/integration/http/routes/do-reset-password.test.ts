@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
 import { getSuperSave } from '../../../utils/db';
 import { superSaveAuth, DoResetPasswordRequest } from '../../../..';
@@ -10,11 +11,17 @@ import {
 } from '../../../../src/db';
 import { clear } from '../../../mysql';
 
+/* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
+let authStop: () => void;
+
 const PASSWORD = 'foo-bar';
 const NEW_PASSWORD = 'bar-foo';
 const TOKEN = '1234xyz';
 
 beforeEach(clear);
+afterEach(() => {
+  authStop();
+});
 
 describe('do reset password', () => {
   it.each([{ password: PASSWORD }, {}, { token: 'abc' }])(
@@ -24,9 +31,13 @@ describe('do reset password', () => {
 
       const app = express();
       app.use(express.json());
-      const { router } = await superSaveAuth(superSave, {
+
+      const auth = await superSaveAuth(superSave, {
         tokenSecret: 'secure',
       });
+      const { router } = auth;
+      authStop = auth.stop;
+
       app.use('/auth', router);
 
       await supertest(app)
@@ -41,9 +52,13 @@ describe('do reset password', () => {
 
     const app = express();
     app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
 
     const request: DoResetPasswordRequest = {
@@ -71,7 +86,8 @@ describe('do reset password', () => {
 
       const app = express();
       app.use(express.json());
-      const { router } = await superSaveAuth(superSave, {
+
+      const auth = await superSaveAuth(superSave, {
         tokenSecret: 'secure',
         hooks:
           typeof doResetPasswordHook !== 'undefined'
@@ -87,6 +103,9 @@ describe('do reset password', () => {
                 },
               },
       });
+      const { router } = auth;
+      authStop = auth.stop;
+
       app.use('/auth', router);
 
       const passwordHash = await hash(PASSWORD);
@@ -155,9 +174,13 @@ describe('do reset password', () => {
 
     const app = express();
     app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
 
     const passwordHash = await hash(PASSWORD);

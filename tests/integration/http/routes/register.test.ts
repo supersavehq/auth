@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
 import supertest from 'supertest';
 import { getSuperSave } from '../../../utils/db';
@@ -9,7 +10,13 @@ import { superSaveAuth } from '../../../..';
 import { getUser } from '../../../utils/fixtures';
 import { clear } from '../../../mysql';
 
+/* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
+let authStop: () => void;
+
 beforeEach(clear);
+afterEach(() => {
+  authStop();
+});
 
 describe('register', () => {
   it.each([
@@ -20,13 +27,17 @@ describe('register', () => {
 
     const app = express();
     app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
       hooks:
         typeof registrationHook !== 'undefined'
           ? { registration: registrationHook }
           : {},
     });
+    const { router } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
 
     // Run
@@ -63,12 +74,17 @@ describe('register', () => {
 
     const app = express();
     app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
       hooks: {
         registration: registrationHook,
       },
     });
+
+    const { router } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
 
     // Run
@@ -104,9 +120,13 @@ describe('register', () => {
 
     const app = express();
     app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
 
     // Run

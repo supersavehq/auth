@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/consistent-destructuring */
 import express, { Application } from 'express';
 import supertest from 'supertest';
 import { getSuperSave } from '../../../utils/db';
@@ -7,7 +8,13 @@ import { getUserRepository } from '../../../../src/db';
 import { superSaveAuth } from '../../../..';
 import { clear } from '../../../mysql';
 
+/* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
+let authStop: () => void;
+
 beforeEach(clear);
+afterEach(() => {
+  authStop();
+});
 
 const PASSWORD = 'foo-bar';
 const NEW_PASSWORD = 'foo-bar2';
@@ -34,9 +41,13 @@ describe('change-password', () => {
 
     const app = express();
     app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router } = auth;
+
+    authStop = auth.stop;
     app.use('/auth', router);
 
     const request = {
@@ -58,9 +69,13 @@ describe('change-password', () => {
 
     const app = express();
     app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
 
     const passwordHash = await hash(PASSWORD);
@@ -91,9 +106,13 @@ describe('change-password', () => {
 
     const app = express();
     app.use(express.json());
-    const { router } = await superSaveAuth(superSave, {
+
+    const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
     });
+    const { router } = auth;
+    authStop = auth.stop;
+
     app.use('/auth', router);
 
     const passwordHash = await hash(PASSWORD);
@@ -125,13 +144,17 @@ describe('change-password', () => {
 
       const app = express();
       app.use(express.json());
-      const { router } = await superSaveAuth(superSave, {
+
+      const auth = await superSaveAuth(superSave, {
         tokenSecret: 'secure',
         hooks:
           typeof changePasswordHook !== 'undefined'
             ? { changePassword: changePasswordHook }
             : {},
       });
+      const { router } = auth;
+      authStop = auth.stop;
+
       app.use('/auth', router);
 
       const passwordHash = await hash(PASSWORD);
