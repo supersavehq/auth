@@ -175,7 +175,8 @@ export type RefreshResponseFailed = {
 
 ### Change Password
 
-This endpoint can be used to change the password for a user. It requires a valid accessToken in the `Authorization: Bearer <token>` header.. Its location is `/<prefix>/post`, and must be invoked using `POST`.
+This endpoint can be used to change the password for a user. It requires a valid accessToken in the `Authorization: Bearer <token>` header.
+Its location is `/<prefix>/post`, and must be invoked using `POST`.
 
 If the provided original password is not correct, a 400 (Bad Request) response will be returned.
 
@@ -204,7 +205,7 @@ This endpoint will generate a reset token for a user. Its path is `/<prefix>/res
 you should also register a `requestResetPassword` hook, to send the URL with the identifier included to the user,
 to start the flow.
 
-If the endpoint is invoked twice, the code from the request is invalidated, only the last generated reset token is valid.
+If the endpoint is invoked twice, the code from the first request is invalidated, only the last generated reset token is valid.
 
 ```typescript
 // Request
