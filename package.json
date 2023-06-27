@@ -82,7 +82,7 @@
   "dependencies": {
     "debug": "^4.3.2",
     "express": "^4.17.1",
-    "njwt": "^1.1.0",
+    "njwt": "^2.0.0",
     "nodejs-pbkdf2": "^1.0.1"
   },
   "peerDependencies": {
