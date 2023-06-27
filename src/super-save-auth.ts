@@ -13,6 +13,7 @@ import type { Config, ProvidedConfig } from './types';
 import { authenticate } from './http/middleware';
 import { addCollection } from './hooks';
 import { cleanUp } from './clean-up';
+import { verifyAccessToken } from './auth';
 
 // Makes sure that we can catch an async exception in express.
 function asyncCatch(middleware: RequestHandler) {
@@ -76,6 +77,11 @@ export async function superSaveAuth(
     router,
     middleware: {
       authenticate: authenticate(config),
+    },
+    verifyAccessToken: async (token: string) => {
+      const parsedToken = await verifyAccessToken(config, token);
+      // @ts-expect-error Types are incorrect, there is a property sub in the parsedTokens' body.
+      return parsedToken.body.sub;
     },
     addCollection: addCollection(superSave),
     stop: () => stopCleanUp(),
