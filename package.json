@@ -74,6 +74,7 @@
     "jest-when": "^3.5.2",
     "mysql": "^2.18.1",
     "prettier": "^2.4.1",
+    "supersave": "^0.13.0",
     "supertest": "^6.1.6",
     "ts-jest": "^27.0.7",
     "typescript": "^4.4.4"
