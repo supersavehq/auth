@@ -12,7 +12,7 @@ const debug = Debug('supersave:auth:login');
 export const login = (superSave: SuperSave, config: Config) =>
   async function (req: Request, res: Response): Promise<void> {
     const passwordCheckResult = await checkPassword(superSave, req, res);
-    if (typeof passwordCheckResult === 'undefined') {
+    if (passwordCheckResult === undefined) {
       return; // checkPassword has already returned the error.
     }
 

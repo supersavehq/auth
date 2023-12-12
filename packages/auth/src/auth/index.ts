@@ -7,5 +7,6 @@ export { verifyAccessToken } from './verify-access-token';
 export { checkPassword } from './check-password';
 
 export async function generateUniqueIdentifier(): Promise<string> {
-  return (await randomBytes()).toString('hex').slice(0, 32);
+  const bytes = await randomBytes();
+  return bytes.toString('hex').slice(0, 32);
 }

@@ -32,7 +32,7 @@ export async function checkPassword(
     return false;
   }
 
-  if (typeof users[0] === 'undefined') {
+  if (users[0] === undefined) {
     throw new TypeError('The returned user was not an actual user object.');
   }
   const user: User = users[0];

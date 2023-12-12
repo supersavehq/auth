@@ -21,7 +21,7 @@ export function isEndpointSecured(config: Config, path: string): boolean {
 
   for (let iter = endpointsToCheck.length - 1; iter >= 0; iter--) {
     const regexp = endpointsToCheck[iter];
-    if (typeof regexp === 'undefined') {
+    if (regexp === undefined) {
       return true; // Fallback to always secure, mostly to please the TS parser.
     }
     if (regexp.test(path)) {
