@@ -1,0 +1,25 @@
+<html>
+
+<head>
+    <script type="text/javascript" src="./dist/auth-client.umd.js"></script>
+    <script type="text/javascript">
+        const client = authClient.initialize({ baseUrl: 'http://localhost:3001/api/v1/auth' });
+
+        async function run() {
+            console.group('client');
+            const rsp = await client.login({ email: 'test@test.nl', password: 'tester01' });
+            console.log(rsp);
+            console.groupEnd();
+        }
+        run();
+    </script>
+</head>
+
+<body>
+    <h1>auth-client test</h1>
+    <p>This page will attempt to connect to a service at localhost, which exposes and endpoint at:
+        http://localhost:3001/api/v1/auth.</p>
+    <p>Output can be found in the console.</p>
+</body>
+
+</html>

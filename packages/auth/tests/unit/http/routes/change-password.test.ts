@@ -155,13 +155,10 @@ describe('change-password', () => {
 
       const REFRESH_TOKEN = '123';
       const ACCESS_TOKEN = 'abc';
-      const generateTokensMock = generateTokens as unknown as jest.Mock<
-        typeof generateTokens
-      >;
+      const generateTokensMock =
+        generateTokens as unknown as jest.MockedFunction<typeof generateTokens>;
       generateTokensMock.mockResolvedValue({
-        // @ts-expect-error Type checks are not understanding it.
         accessToken: ACCESS_TOKEN,
-        // @ts-expect-error Type checks are not understanding it.
         refreshToken: REFRESH_TOKEN,
       });
 

@@ -5,8 +5,14 @@
 
 version: 2
 updates:
-  - package-ecosystem: 'npm' # See documentation for possible values
-    directory: '.' # Location of package manifests
+  - package-ecosystem: 'npm'
+    directory: '/packages/auth'
+    schedule:
+      interval: 'weekly'
+    allow:
+      - dependency-type: production
+  - package-ecosystem: 'npm'
+    directory: '/packages/client'
     schedule:
       interval: 'weekly'
     allow:
