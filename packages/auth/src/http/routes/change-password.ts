@@ -34,24 +34,20 @@ export const changePassword = (superSave: SuperSave, config: Config) =>
     const { newPassword } = req.body;
 
     debug('Updating the password.');
-    const userRepository = await getUserRepository(superSave);
+    const userRepository = getUserRepository(superSave);
     user.password = await hash.hash(newPassword);
     user.lastLogin = timeInSeconds();
     await userRepository.update(user);
 
     debug('Invalidating all refresh tokens.');
-    const tokenRepository = await getRefreshTokenRepository(superSave);
-    const existingTokens = await tokenRepository.getByQuery(
-      tokenRepository.createQuery().eq('userId', user.id)
-    );
-    await Promise.all(
-      existingTokens.map((token) => tokenRepository.deleteUsingId(token.id))
-    );
+    const tokenRepository = getRefreshTokenRepository(superSave);
+    const existingTokens = await tokenRepository.getByQuery(tokenRepository.createQuery().eq('userId', user.id));
+    await Promise.all(existingTokens.map((token) => tokenRepository.deleteUsingId(token.id)));
 
     const tokens = await generateTokens(superSave, config, user);
 
     if (config.hooks?.changePassword) {
-      config.hooks.changePassword(user);
+      void config.hooks.changePassword(user);
     }
 
     const response: ChangePasswordResponseSuccess = {

@@ -1,10 +1,10 @@
-import type { SuperSave } from 'supersave';
-import type { Request, Response } from 'express';
 import Debug from 'debug';
-import { getRefreshTokenRepository, getUserRepository } from '../../db';
-import type { RefreshTokenResponse, Config } from '../../types';
-import { timeInSeconds } from '../../utils';
+import type { Request, Response } from 'express';
+import type { SuperSave } from 'supersave';
 import { generateAccessToken } from '../../auth';
+import { getRefreshTokenRepository, getUserRepository } from '../../db';
+import type { Config, RefreshTokenResponse } from '../../types';
+import { timeInSeconds } from '../../utils';
 
 const debug = Debug('supersave:auth:refresh');
 
@@ -18,9 +18,9 @@ export const refresh = (superSave: SuperSave, config: Config) =>
     const { token }: { token: string } = req.body;
 
     const refreshTokenRepository = getRefreshTokenRepository(superSave);
-    const dbToken = await refreshTokenRepository.getById(token);
+    const databaseToken = await refreshTokenRepository.getById(token);
 
-    if (!dbToken) {
+    if (!databaseToken) {
       debug('Refresh token could not be found.');
       const response: RefreshTokenResponse = { data: { success: false } };
       res.status(401).json(response);
@@ -28,30 +28,30 @@ export const refresh = (superSave: SuperSave, config: Config) =>
     }
 
     const now = timeInSeconds();
-    if (dbToken.expiresAt < now) {
-      debug('Used Refresh token for user %s is expired.', dbToken.userId);
+    if (databaseToken.expiresAt < now) {
+      debug('Used Refresh token for user %s is expired.', databaseToken.userId);
       const response: RefreshTokenResponse = { data: { success: false } };
       res.status(401).json(response);
       return;
     }
 
     const userRepository = getUserRepository(superSave);
-    const user = await userRepository.getById(dbToken.userId);
+    const user = await userRepository.getById(databaseToken.userId);
     if (!user) {
-      debug('User %s linked to refresh token was not found.', dbToken.userId);
+      debug('User %s linked to refresh token was not found.', databaseToken.userId);
       const response: RefreshTokenResponse = { data: { success: false } };
       res.status(401).json(response);
       return;
     }
 
-    const accessToken = await generateAccessToken(config, user.id);
+    const accessToken = generateAccessToken(config, user.id);
 
     user.lastLogin = timeInSeconds();
     debug('Updating user lastLogin timestamp %s.', user.lastLogin);
     await userRepository.update(user);
 
     if (config.hooks?.refresh) {
-      config.hooks.refresh(user);
+      void config.hooks.refresh(user);
     }
 
     const response: RefreshTokenResponse = {

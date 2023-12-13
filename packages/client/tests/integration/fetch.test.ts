@@ -1,5 +1,5 @@
-import { getServer } from '../../tests/integration/utils';
 import { initialize } from '../..';
+import { getServer } from '../../tests/integration/utils';
 
 /**
  * Some fetch specific tests, which can only be run on node 18.
@@ -13,7 +13,7 @@ const serverInfoPromise = getServer();
 
 afterAll(async () => {
   const server = await serverInfoPromise;
-  server.close();
+  await server.close();
 });
 
 // Only run test when fetch is available.

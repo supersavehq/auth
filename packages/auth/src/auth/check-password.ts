@@ -1,9 +1,9 @@
 import Debug from 'debug';
-import type { SuperSave } from 'supersave';
 import type { Request, Response } from 'express';
+import type { SuperSave } from 'supersave';
+import { verify } from './hash';
 import { getUserRepository } from '../db';
 import type { User } from '../types';
-import { verify } from './hash';
 
 const debug = Debug('supersave:auth:check-password');
 
@@ -25,9 +25,7 @@ export async function checkPassword(
   const { email, password }: { email: string; password: string } = req.body;
   debug('Password check for %s', email);
 
-  const users = await repository.getByQuery(
-    repository.createQuery().eq('email', email).limit(1)
-  );
+  const users = await repository.getByQuery(repository.createQuery().eq('email', email).limit(1));
   if (users.length === 0) {
     return false;
   }

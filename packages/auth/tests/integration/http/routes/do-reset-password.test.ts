@@ -1,15 +1,12 @@
 /* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
-import { getSuperSave } from '../../../utils/db';
-import { superSaveAuth, DoResetPasswordRequest } from '../../../..';
 import supertest from 'supertest';
-import { getUser } from '../../../utils/fixtures';
+import { DoResetPasswordRequest, superSaveAuth } from '../../../..';
 import { hash } from '../../../../src/auth/hash';
-import {
-  getResetPasswordTokenRepository,
-  getUserRepository,
-} from '../../../../src/db';
+import { getResetPasswordTokenRepository, getUserRepository } from '../../../../src/db';
 import { clear } from '../../../mysql';
+import { getSuperSave } from '../../../utils/database';
+import { getUser } from '../../../utils/fixtures';
 
 /* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
 let authStop: () => void;
@@ -40,10 +37,7 @@ describe('do reset password', () => {
 
       app.use('/auth', router);
 
-      await supertest(app)
-        .post('/auth/do-reset-password')
-        .send(request)
-        .expect(400);
+      await supertest(app).post('/auth/do-reset-password').send(request).expect(400);
     }
   );
 
@@ -76,98 +70,95 @@ describe('do reset password', () => {
     expect(response.body.data.reason).toEqual('INVALID_TOKEN');
   });
 
-  it.each([undefined, jest.fn()])(
-    'resets the password for a valid token',
-    async (doResetPasswordHook) => {
-      const superSave = await getSuperSave();
+  it.each([undefined, jest.fn()])('resets the password for a valid token', async (doResetPasswordHook) => {
+    const superSave = await getSuperSave();
 
-      // Using the hook, this will contain the token to use.
-      let resetToken = '';
+    // Using the hook, this will contain the token to use.
+    let resetToken = '';
 
-      const app = express();
-      app.use(express.json());
+    const app = express();
+    app.use(express.json());
 
-      const auth = await superSaveAuth(superSave, {
-        tokenSecret: 'secure',
-        hooks:
-          typeof doResetPasswordHook !== 'undefined'
-            ? {
-                doResetPassword: doResetPasswordHook,
-                requestResetPassword: (_user, token) => {
-                  resetToken = token;
-                },
-              }
-            : {
-                requestResetPassword: (_user, token) => {
-                  resetToken = token;
-                },
+    const auth = await superSaveAuth(superSave, {
+      tokenSecret: 'secure',
+      hooks:
+        doResetPasswordHook === undefined
+          ? {
+              requestResetPassword: (_user, token) => {
+                resetToken = token;
               },
-      });
-      const { router } = auth;
-      authStop = auth.stop;
+            }
+          : {
+              doResetPassword: doResetPasswordHook,
+              requestResetPassword: (_user, token) => {
+                resetToken = token;
+              },
+            },
+    });
+    const { router } = auth;
+    authStop = auth.stop;
 
-      app.use('/auth', router);
+    app.use('/auth', router);
 
-      const passwordHash = await hash(PASSWORD);
-      const user = getUser({ password: passwordHash });
-      const userRepository = getUserRepository(superSave);
-      await userRepository.create(user);
+    const passwordHash = await hash(PASSWORD);
+    const user = getUser({ password: passwordHash });
+    const userRepository = getUserRepository(superSave);
+    await userRepository.create(user);
 
-      // Login, so we can validate that all refresh tokens are invalidated
-      const loginResponse = await supertest(app)
-        .post('/auth/login')
-        .send({ email: user.email, password: PASSWORD })
-        .expect('Content-Type', /json/)
-        .expect(200);
-      expect(loginResponse.body.data.authorized).toBe(true);
+    // Login, so we can validate that all refresh tokens are invalidated
+    const loginResponse = await supertest(app)
+      .post('/auth/login')
+      .send({ email: user.email, password: PASSWORD })
+      .expect('Content-Type', /json/)
+      .expect(200);
+    expect(loginResponse.body.data.authorized).toBe(true);
 
-      // Then, request a reset token
-      await supertest(app)
-        .post('/auth/reset-password')
-        .send({
-          email: user.email,
-        })
-        .expect(201);
+    // Then, request a reset token
+    await supertest(app)
+      .post('/auth/reset-password')
+      .send({
+        email: user.email,
+      })
+      .expect(201);
 
-      const request: DoResetPasswordRequest = {
-        password: NEW_PASSWORD,
-        token: resetToken,
-      };
+    const request: DoResetPasswordRequest = {
+      password: NEW_PASSWORD,
+      token: resetToken,
+    };
 
-      const response = await supertest(app)
-        .post('/auth/do-reset-password')
-        .send(request)
-        .expect('Content-Type', /json/)
-        .expect(200);
+    const response = await supertest(app)
+      .post('/auth/do-reset-password')
+      .send(request)
+      .expect('Content-Type', /json/)
+      .expect(200);
 
-      expect(response.body.data.success).toStrictEqual(true);
-      expect(response.body.data.accessToken).toBeDefined();
-      expect(response.body.data.refreshToken).toBeDefined();
+    expect(response.body.data.success).toStrictEqual(true);
+    expect(response.body.data.accessToken).toBeDefined();
+    expect(response.body.data.refreshToken).toBeDefined();
 
-      if (typeof doResetPasswordHook !== 'undefined') {
-        expect(doResetPasswordHook).toBeCalledWith(
-          // We check on the partial value, because the lastLogin timestamp updates and can cause timing issues.
-          expect.objectContaining({ email: user.email })
-        );
-      }
-
-      // validate that we can login with the new password
-      const newLoginResponse = await supertest(app)
-        .post('/auth/login')
-        .send({ email: user.email, password: NEW_PASSWORD })
-        .expect('Content-Type', /json/)
-        .expect(200);
-      expect(newLoginResponse.body.data.authorized).toBe(true);
-
-      // validate that the old refresh token has been invalidated
-      const refreshResponse = await supertest(app)
-        .post('/auth/refresh')
-        .send({ token: loginResponse.body.data.refreshToken })
-        .expect('Content-Type', /json/)
-        .expect(401);
-      expect(refreshResponse.body.data.success).toBe(false);
+    if (doResetPasswordHook !== undefined) {
+      expect(doResetPasswordHook).toBeCalledWith(
+        // We check on the partial value, because the lastLogin timestamp updates and can cause timing issues.
+        expect.objectContaining({ email: user.email })
+      );
     }
-  );
+
+    // validate that we can login with the new password
+    const newLoginResponse = await supertest(app)
+      .post('/auth/login')
+      .send({ email: user.email, password: NEW_PASSWORD })
+      .expect('Content-Type', /json/)
+      .expect(200);
+    expect(newLoginResponse.body.data.authorized).toBe(true);
+
+    // validate that the old refresh token has been invalidated
+    const refreshResponse = await supertest(app)
+      .post('/auth/refresh')
+      .send({ token: loginResponse.body.data.refreshToken })
+      .expect('Content-Type', /json/)
+      .expect(401);
+    expect(refreshResponse.body.data.success).toBe(false);
+  });
 
   it('fails on an outdated token', async () => {
     const superSave = await getSuperSave();
@@ -189,9 +180,7 @@ describe('do reset password', () => {
     await userRepository.create(user);
 
     // Create an old token
-    const resetPasswordTokenRepository = await getResetPasswordTokenRepository(
-      superSave
-    );
+    const resetPasswordTokenRepository = getResetPasswordTokenRepository(superSave);
     await resetPasswordTokenRepository.create({
       userId: user.id,
       identifier: TOKEN,

@@ -1,5 +1,6 @@
 import { getRequester } from './http-requester';
-import type { Options, Client } from './types';
+import * as requests from './requests';
+import type { Client, Options } from './types';
 export {
   Requester,
   HttpResponse,
@@ -17,16 +18,13 @@ export {
   DoResetPasswordResponse,
   RequestResetPasswordRequest,
 } from './types';
-import * as requests from './requests';
 
 export function initialize(options: Options): Client {
   const requester = getRequester(options);
 
   const rawBaseUrl = options.baseUrl;
   const baseUrl =
-    rawBaseUrl.charAt(rawBaseUrl.length) === '/'
-      ? rawBaseUrl.slice(0, Math.max(0, rawBaseUrl.length - 1))
-      : rawBaseUrl;
+    rawBaseUrl.charAt(rawBaseUrl.length) === '/' ? rawBaseUrl.slice(0, Math.max(0, rawBaseUrl.length - 1)) : rawBaseUrl;
 
   return {
     login: requests.login(baseUrl, requester),

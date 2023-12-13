@@ -1,19 +1,11 @@
 import axios from 'axios';
-import type { Requester, HttpResponse } from '../../..';
+import type { HttpResponse, Requester } from '../../..';
 
 export const requester: Requester = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  post: async function <T, D = any>(
-    url: string,
-    data: D,
-    headers?: Record<string, string>
-  ): Promise<HttpResponse<T>> {
+  post: async function <T, D = any>(url: string, data: D, headers?: Record<string, string>): Promise<HttpResponse<T>> {
     try {
-      const response = await axios.post<T>(
-        url,
-        data,
-        headers === undefined ? {} : { headers }
-      );
+      const response = await axios.post<T>(url, data, headers === undefined ? {} : { headers });
       return {
         statusCode: response.status,
         data: response.data,

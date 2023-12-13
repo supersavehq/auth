@@ -1,14 +1,11 @@
 /* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
 import supertest from 'supertest';
-import { getSuperSave } from '../../../utils/db';
-import {
-  getRefreshTokenRepository,
-  getUserRepository,
-} from '../../../../src/db';
 import { superSaveAuth } from '../../../..';
-import { getUser } from '../../../utils/fixtures';
+import { getRefreshTokenRepository, getUserRepository } from '../../../../src/db';
 import { clear } from '../../../mysql';
+import { getSuperSave } from '../../../utils/database';
+import { getUser } from '../../../utils/fixtures';
 
 /* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
 let authStop: () => void;
@@ -30,10 +27,7 @@ describe('register', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
-      hooks:
-        typeof registrationHook !== 'undefined'
-          ? { registration: registrationHook }
-          : {},
+      hooks: registrationHook === undefined ? {} : { registration: registrationHook },
     });
     const { router } = auth;
     authStop = auth.stop;
@@ -50,19 +44,15 @@ describe('register', () => {
 
     // Assert
     expect(response.body.data.success).toBe(true);
-    const userRepository = await getUserRepository(superSave);
-    const users = await userRepository.getByQuery(
-      userRepository.createQuery().eq('email', 'user@example.com')
-    );
+    const userRepository = getUserRepository(superSave);
+    const users = await userRepository.getByQuery(userRepository.createQuery().eq('email', 'user@example.com'));
     expect(users).toHaveLength(1);
     expect(users[0]?.name).toEqual(name);
 
     const refreshTokenRepository = getRefreshTokenRepository(superSave);
-    const token = await refreshTokenRepository.getById(
-      response.body.data.refreshToken
-    );
+    const token = await refreshTokenRepository.getById(response.body.data.refreshToken);
     expect(token).toBeDefined();
-    if (typeof registrationHook !== 'undefined') {
+    if (registrationHook !== undefined) {
       expect(registrationHook).toBeCalledWith(users[0]);
     }
   });
@@ -97,17 +87,13 @@ describe('register', () => {
 
     // Assert
     expect(response.body.data.success).toBe(true);
-    const userRepository = await getUserRepository(superSave);
-    const users = await userRepository.getByQuery(
-      userRepository.createQuery().eq('email', 'user@example.com')
-    );
+    const userRepository = getUserRepository(superSave);
+    const users = await userRepository.getByQuery(userRepository.createQuery().eq('email', 'user@example.com'));
     expect(users).toHaveLength(1);
     expect(users[0]?.name).toBeUndefined();
 
     const refreshTokenRepository = getRefreshTokenRepository(superSave);
-    const token = await refreshTokenRepository.getById(
-      response.body.data.refreshToken
-    );
+    const token = await refreshTokenRepository.getById(response.body.data.refreshToken);
     expect(token).toBeDefined();
     expect(registrationHook).toBeCalled();
   });
@@ -115,7 +101,7 @@ describe('register', () => {
   it('returns unsuccesful on existing user.', async () => {
     const superSave = await getSuperSave();
 
-    const userRepository = await getUserRepository(superSave);
+    const userRepository = getUserRepository(superSave);
     const user = await userRepository.create(getUser());
 
     const app = express();

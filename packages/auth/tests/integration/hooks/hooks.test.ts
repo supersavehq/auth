@@ -2,8 +2,8 @@ import express from 'express';
 import { Collection, EntityDefinition, SuperSave } from 'supersave';
 import supertest from 'supertest';
 import { superSaveAuth, User } from '../../..';
-import { getUserRepository } from '../../../src/db';
 import { hash } from '../../../src/auth';
+import { getUserRepository } from '../../../src/db';
 import getConnection from '../../connection';
 
 /* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
@@ -102,114 +102,103 @@ app.use(express.json());
 
 const superTest = supertest(app);
 // We initialize supersave manually here, because we do some more setup than in the boiler plate.
-const superSavePromise = SuperSave.create(getConnection()).then(
-  (superSave: SuperSave) => {
-    return superSaveAuth(superSave, { tokenSecret: 'aaa' })
-      .then(({ router, middleware, addCollection, stop }) => {
-        authStop = stop; // Store this so we can stop auth when the tests are done.
-        return Promise.all([
-          addCollection(planetEntity),
-          addCollection(moonEntity),
-          addCollection(systemEntity),
-        ]).then(() => {
+const superSavePromise = SuperSave.create(getConnection()).then((superSave: SuperSave) => {
+  return superSaveAuth(superSave, { tokenSecret: 'aaa' })
+    .then(({ router, middleware, addCollection, stop }) => {
+      authStop = stop; // Store this so we can stop auth when the tests are done.
+      return Promise.all([addCollection(planetEntity), addCollection(moonEntity), addCollection(systemEntity)]).then(
+        () => {
           return { router, middleware };
-        });
-      })
-      .then(({ router, middleware }) => {
-        app.use('/auth', router);
-        return superSave.getRouter().then((superSaveRouter) => {
-          app.use('/api', middleware.authenticate, superSaveRouter);
-        });
-      })
-      .then(() => {
-        return hash.hash(PASSWORD);
-      })
-      .then((passwordHash: string) => {
-        const userRepository = getUserRepository(superSave);
-        return userRepository
-          .create({
+        }
+      );
+    })
+    .then(({ router, middleware }) => {
+      app.use('/auth', router);
+      return superSave.getRouter().then((superSaveRouter) => {
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        app.use('/api', middleware.authenticate, superSaveRouter);
+      });
+    })
+    .then(() => {
+      return hash.hash(PASSWORD);
+    })
+    .then((passwordHash: string) => {
+      const userRepository = getUserRepository(superSave);
+      return userRepository
+        .create({
+          // @ts-expect-error We are explicitly specifying the entity, which is not supported by types, but does work.
+          id: USER_ID_1,
+          email: 'user1@example.com',
+          password: passwordHash,
+        })
+        .then((user) => {
+          user1 = user;
+          return userRepository.create({
             // @ts-expect-error We are explicitly specifying the entity, which is not supported by types, but does work.
-            id: USER_ID_1,
-            email: 'user1@example.com',
+            id: USER_ID_2,
+            email: 'user2@example.com',
             password: passwordHash,
-          })
-          .then((user) => {
-            user1 = user;
-            return userRepository.create({
-              // @ts-expect-error We are explicitly specifying the entity, which is not supported by types, but does work.
-              id: USER_ID_2,
-              email: 'user2@example.com',
-              password: passwordHash,
-            });
-          })
-          .then((user) => {
-            user2 = user;
           });
-      })
-      .then(() => {
-        const planetRepository = superSave.getRepository<Planet>(
-          planetEntity.name
-        );
-        return planetRepository
-          .create({
+        })
+        .then((user) => {
+          user2 = user;
+        });
+    })
+    .then(() => {
+      const planetRepository = superSave.getRepository<Planet>(planetEntity.name);
+      return planetRepository
+        .create({
+          // @ts-expect-error We are explicitly specifying the entity, which is not supported by types, but does work.
+          id: PLANET_1,
+          name: PLANET_1,
+          distance: PLANET_1.length,
+          // @ts-expect-error The typings don't match up.
+          userId: user1.id,
+        })
+        .then((createdMars) => {
+          planetMars = createdMars;
+          return planetRepository.create({
             // @ts-expect-error We are explicitly specifying the entity, which is not supported by types, but does work.
-            id: PLANET_1,
-            name: PLANET_1,
-            distance: PLANET_1.length,
+            id: PLANET_2,
+            name: PLANET_2,
+            distance: PLANET_2.length,
             // @ts-expect-error The typings don't match up.
-            userId: user1.id,
-          })
-          .then((createdMars) => {
-            planetMars = createdMars;
-            return planetRepository.create({
-              // @ts-expect-error We are explicitly specifying the entity, which is not supported by types, but does work.
-              id: PLANET_2,
-              name: PLANET_2,
-              distance: PLANET_2.length,
-              // @ts-expect-error The typings don't match up.
-              userId: user2.id,
-            });
+            userId: user2.id,
           });
-      })
-      .then(() => {
-        const moonRepository = superSave.getRepository<Moon>('moon');
-        return moonRepository.create({
-          name: 'Phobos',
-          planet: planetMars,
-          // @ts-expect-error The typings don't match up.
-          userId: user1.id,
         });
-      })
-      .then(() => {
-        const systemRepository = superSave.getRepository<System>('system');
-        return systemRepository.create({
-          name: SYSTEM_1,
-          planets: [planetMars],
-          // @ts-expect-error The typings don't match up.
-          userId: user1.id,
-        });
-      })
-      .then(() => {
-        return superTest
-          .post('/auth/login')
-          .send({ email: 'user1@example.com', password: PASSWORD })
-          .expect(200);
-      })
-      .then((response) => {
-        expect(response.body.data.authorized).toBe(true);
-        user1AccessToken = response.body.data.accessToken;
-      })
-      .then(() => superSave);
-  }
-);
+    })
+    .then(() => {
+      const moonRepository = superSave.getRepository<Moon>('moon');
+      return moonRepository.create({
+        name: 'Phobos',
+        planet: planetMars,
+        // @ts-expect-error The typings don't match up.
+        userId: user1.id,
+      });
+    })
+    .then(() => {
+      const systemRepository = superSave.getRepository<System>('system');
+      return systemRepository.create({
+        name: SYSTEM_1,
+        planets: [planetMars],
+        // @ts-expect-error The typings don't match up.
+        userId: user1.id,
+      });
+    })
+    .then(() => {
+      return superTest.post('/auth/login').send({ email: 'user1@example.com', password: PASSWORD }).expect(200);
+    })
+    .then((response) => {
+      expect(response.body.data.authorized).toBe(true);
+      user1AccessToken = response.body.data.accessToken;
+    })
+    .then(() => superSave);
+});
 
 describe('get', () => {
   it('fetches only the row for the user', async () => {
     await superSavePromise;
-    const response = await superTest
-      .get('/api/planets')
-      .set('Authorization', `Bearer ${user1AccessToken}`)
-      .expect(200);
+    const response = await superTest.get('/api/planets').set('Authorization', `Bearer ${user1AccessToken}`).expect(200);
 
     expect(response.body.data).toHaveLength(1);
     expect(response.body.data[0].name).toEqual(PLANET_1);
@@ -231,20 +220,14 @@ describe('getById', () => {
 
   it('bans fetching the planet for a different user', async () => {
     await superSavePromise;
-    await superTest
-      .get(`/api/planets/${PLANET_2}`)
-      .set('Authorization', `Bearer ${user1AccessToken}`)
-      .expect(401);
+    await superTest.get(`/api/planets/${PLANET_2}`).set('Authorization', `Bearer ${user1AccessToken}`).expect(401);
   });
 });
 
 describe('entityTransform', () => {
   test('the userId is removed from a singular related entity', async () => {
     await superSavePromise;
-    const response = await superTest
-      .get('/api/moons')
-      .set('Authorization', `Bearer ${user1AccessToken}`)
-      .expect(200);
+    const response = await superTest.get('/api/moons').set('Authorization', `Bearer ${user1AccessToken}`).expect(200);
 
     expect(response.body.data).toHaveLength(1);
 
@@ -254,10 +237,7 @@ describe('entityTransform', () => {
 
   test('the userId is removed from a multiple related entity', async () => {
     await superSavePromise;
-    const response = await superTest
-      .get('/api/systems')
-      .set('Authorization', `Bearer ${user1AccessToken}`)
-      .expect(200);
+    const response = await superTest.get('/api/systems').set('Authorization', `Bearer ${user1AccessToken}`).expect(200);
 
     expect(response.body.data).toHaveLength(1);
 
@@ -303,7 +283,7 @@ describe('createBefore', () => {
   it('allows creating the planet for the user', async () => {
     const superSave = await superSavePromise;
     const response = await superTest
-      .post(`/api/planets`)
+      .post('/api/planets')
       .send({ name: 'new-planet' })
       .set('Authorization', `Bearer ${user1AccessToken}`)
       .expect(200);
@@ -320,7 +300,7 @@ describe('createBefore', () => {
   it('prevents providing a different userId for the entity.', async () => {
     const superSave = await superSavePromise;
     const response = await superTest
-      .post(`/api/planets`)
+      .post('/api/planets')
       .send({ name: 'another-planet', userId: USER_ID_2 })
       .set('Authorization', `Bearer ${user1AccessToken}`)
       .expect(200);
@@ -338,17 +318,11 @@ describe('createBefore', () => {
 describe('deleteBefore', () => {
   it('allows deleting the planet for the user', async () => {
     await superSavePromise;
-    await superTest
-      .delete(`/api/planets/${PLANET_1}`)
-      .set('Authorization', `Bearer ${user1AccessToken}`)
-      .expect(204);
+    await superTest.delete(`/api/planets/${PLANET_1}`).set('Authorization', `Bearer ${user1AccessToken}`).expect(204);
   });
 
   it('bans deleting the planet for a different user', async () => {
     await superSavePromise;
-    await superTest
-      .delete(`/api/planets/${PLANET_2}`)
-      .set('Authorization', `Bearer ${user1AccessToken}`)
-      .expect(401);
+    await superTest.delete(`/api/planets/${PLANET_2}`).set('Authorization', `Bearer ${user1AccessToken}`).expect(401);
   });
 });

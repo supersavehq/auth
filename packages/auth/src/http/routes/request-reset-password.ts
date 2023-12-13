@@ -1,9 +1,9 @@
-import type { Request, Response } from 'express';
 import Debug from 'debug';
-import { getResetPasswordTokenRepository, getUserRepository } from '../../db';
-import type { Config } from '../../types';
+import type { Request, Response } from 'express';
 import type { SuperSave } from 'supersave';
 import { generateUniqueIdentifier } from '../../auth';
+import { getResetPasswordTokenRepository, getUserRepository } from '../../db';
+import type { Config } from '../../types';
 
 const debug = Debug('supersave:auth:request-reset-password');
 
@@ -18,10 +18,8 @@ export const requestResetPassword = (superSave: SuperSave, config: Config) =>
     }
     const { email } = req.body;
 
-    const userRepository = await getUserRepository(superSave);
-    const user = await userRepository.getOneByQuery(
-      userRepository.createQuery().eq('email', email)
-    );
+    const userRepository = getUserRepository(superSave);
+    const user = await userRepository.getOneByQuery(userRepository.createQuery().eq('email', email));
     if (user === null) {
       debug('User with email %s not found in database', email);
       // Don't expose via the response whether or not the user exists in the database.
@@ -31,9 +29,7 @@ export const requestResetPassword = (superSave: SuperSave, config: Config) =>
 
     const identifier = await generateUniqueIdentifier();
 
-    const resetPasswordTokenRepository = await getResetPasswordTokenRepository(
-      superSave
-    );
+    const resetPasswordTokenRepository = getResetPasswordTokenRepository(superSave);
 
     // See if there already is an existing token for this user
     const existingToken = await resetPasswordTokenRepository.getOneByQuery(
@@ -46,13 +42,12 @@ export const requestResetPassword = (superSave: SuperSave, config: Config) =>
 
     await resetPasswordTokenRepository.create({
       identifier,
-      expires:
-        Math.round(Date.now() / 1000) + config.resetPasswordTokenExpiration,
+      expires: Math.round(Date.now() / 1000) + config.resetPasswordTokenExpiration,
       userId: user.id,
     });
 
     if (config.hooks?.requestResetPassword) {
-      config.hooks.requestResetPassword(user, identifier);
+      void config.hooks.requestResetPassword(user, identifier);
     }
 
     res.status(201).send();

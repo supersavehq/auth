@@ -15,17 +15,11 @@ export default function (
   if (collection.relations.length > 0) {
     for (const relation of collection.relations) {
       if (relation.multiple && Array.isArray(entity[relation.field])) {
-        entity[relation.field] = entity[relation.field].map(
-          (relationEntity: BaseEntity) => {
-            delete relationEntity['userId'];
-            return relationEntity;
-          }
-        );
-      } else if (
-        !relation.multiple &&
-        typeof entity[relation.field] === 'object' &&
-        entity[relation.field] !== null
-      ) {
+        entity[relation.field] = entity[relation.field].map((relationEntity: BaseEntity) => {
+          delete relationEntity['userId'];
+          return relationEntity;
+        });
+      } else if (!relation.multiple && typeof entity[relation.field] === 'object' && entity[relation.field] !== null) {
         delete entity[relation.field].userId;
       }
     }

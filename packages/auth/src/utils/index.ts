@@ -5,19 +5,13 @@ export function timeInSeconds(): number {
 }
 
 export function isEndpointSecured(config: Config, path: string): boolean {
-  if (
-    config.notSecuredEndpoints.length === 0 &&
-    config.securedEndpoints.length === 0
-  ) {
+  if (config.notSecuredEndpoints.length === 0 && config.securedEndpoints.length === 0) {
     return true; // no endpoints defined, so everything is a secured endpoint.
   }
 
   // remember whether we are doing an optin for secure endpoints (secureEndpoints), or an opt-out(notSecuredEndpoints)
   const matchMeansSecured = config.securedEndpoints.length > 0;
-  const endpointsToCheck =
-    config.notSecuredEndpoints.length > 0
-      ? config.notSecuredEndpoints
-      : config.securedEndpoints;
+  const endpointsToCheck = config.notSecuredEndpoints.length > 0 ? config.notSecuredEndpoints : config.securedEndpoints;
 
   for (let iter = endpointsToCheck.length - 1; iter >= 0; iter--) {
     const regexp = endpointsToCheck[iter];

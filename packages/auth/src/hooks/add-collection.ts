@@ -1,10 +1,10 @@
 import type { Collection, Repository, SuperSave } from 'supersave';
+import createBefore from './create-before';
 import deleteBefore from './delete-before';
+import entityTransform from './entity-transform';
 import get from './get';
 import getById from './get-by-id';
-import entityTransform from './entity-transform';
 import updateBefore from './update-before';
-import createBefore from './create-before';
 
 export const addCollection = <T>(superSave: SuperSave) =>
   async function (collection: Collection): Promise<Repository<T>> {

@@ -1,9 +1,9 @@
+import Debug from 'debug';
 import type { Request, Response } from 'express';
 import type { SuperSave } from 'supersave';
-import Debug from 'debug';
-import { getUserRepository } from '../../db';
-import type { RegistrationResponse, User, Config } from '../../types';
 import { generateTokens, hash } from '../../auth';
+import { getUserRepository } from '../../db';
+import type { Config, RegistrationResponse, User } from '../../types';
 import { timeInSeconds } from '../../utils';
 
 const debug = Debug('supersave:auth:register');
@@ -19,16 +19,10 @@ export const register = (superSave: SuperSave, config: Config) =>
       return;
     }
 
-    const {
-      email,
-      password,
-      name,
-    }: { email: string; password: string; name?: string } = req.body;
+    const { email, password, name }: { email: string; password: string; name?: string } = req.body;
     debug('Registration attempt for %s, %s.', email, name);
 
-    const users = await repository.getByQuery(
-      repository.createQuery().eq('email', email).limit(1)
-    );
+    const users = await repository.getByQuery(repository.createQuery().eq('email', email).limit(1));
     if (users.length > 0) {
       debug('User found with email %s, cannot register.', email);
       const response: RegistrationResponse = {
@@ -63,7 +57,7 @@ export const register = (superSave: SuperSave, config: Config) =>
     };
 
     if (config.hooks?.registration) {
-      config.hooks.registration(createdUser);
+      void config.hooks.registration(createdUser);
     }
     res.json(response);
   };

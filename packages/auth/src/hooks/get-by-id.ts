@@ -1,8 +1,8 @@
+import Debug from 'debug';
 import type { Request, Response } from 'express';
 import { Collection, HookError } from 'supersave';
-import Debug from 'debug';
-import type { CollectionEntityWithUserId } from '../types';
 import checkUserId from './check-user-id';
+import type { CollectionEntityWithUserId } from '../types';
 
 const debug = Debug('supersave:auth:hooks');
 

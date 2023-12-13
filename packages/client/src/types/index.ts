@@ -5,11 +5,7 @@ export type HttpResponse<T> = {
 
 export interface Requester {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  post: <T, D = any>(
-    url: string,
-    data?: D | undefined,
-    headers?: Record<string, string>
-  ) => Promise<HttpResponse<T>>;
+  post: <T, D = any>(url: string, data?: D | undefined, headers?: Record<string, string>) => Promise<HttpResponse<T>>;
 }
 
 export type Options = {
@@ -21,13 +17,9 @@ export type Client = {
   login: (request: LoginRequest) => Promise<LoginResponse>;
   register: (request: RegistrationRequest) => Promise<RegistrationResponse>;
   refresh: (request: RefreshRequest) => Promise<RefreshResponse>;
-  changePassword: (
-    request: ChangePasswordRequest
-  ) => Promise<ChangePasswordResponse>;
+  changePassword: (request: ChangePasswordRequest) => Promise<ChangePasswordResponse>;
   requestResetPassword: (request: RequestResetPasswordRequest) => Promise<void>;
-  doResetPassword: (
-    request: DoResetPasswordRequest
-  ) => Promise<DoResetPasswordResponse>;
+  doResetPassword: (request: DoResetPasswordRequest) => Promise<DoResetPasswordResponse>;
 };
 
 /** HTTP response types */
@@ -78,9 +70,7 @@ export type RegistrationResponseSuccess = {
   refreshToken: string;
 };
 
-export type RegistrationResponse =
-  | RegistrationResponseFailed
-  | RegistrationResponseSuccess;
+export type RegistrationResponse = RegistrationResponseFailed | RegistrationResponseSuccess;
 
 export type RegistrationDataResponse = HttpDataResponse<RegistrationResponse>;
 
@@ -113,11 +103,8 @@ export type ChangePasswordResponseFailure = {
   success: false;
   reason: 'INVALID_PASSWORD' | 'UNKNOWN' | 'INVALID_TOKEN';
 };
-export type ChangePasswordResponse =
-  | ChangePasswordResponseSuccess
-  | ChangePasswordResponseFailure;
-export type ChangePasswordDataResponse =
-  HttpDataResponse<ChangePasswordResponse>;
+export type ChangePasswordResponse = ChangePasswordResponseSuccess | ChangePasswordResponseFailure;
+export type ChangePasswordDataResponse = HttpDataResponse<ChangePasswordResponse>;
 
 export type RequestResetPasswordRequest = {
   email: string;
@@ -139,8 +126,5 @@ export type DoResetPasswordResponseSuccess = {
   refreshToken: string;
 };
 
-export type DoResetPasswordResponse =
-  | DoResetPasswordResponseFailed
-  | DoResetPasswordResponseSuccess;
-export type DoResetPasswordDataResponse =
-  HttpDataResponse<DoResetPasswordResponse>;
+export type DoResetPasswordResponse = DoResetPasswordResponseFailed | DoResetPasswordResponseSuccess;
+export type DoResetPasswordDataResponse = HttpDataResponse<DoResetPasswordResponse>;

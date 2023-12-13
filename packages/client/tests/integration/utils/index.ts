@@ -1,6 +1,6 @@
-import { SuperSave, EntityDefinition } from 'supersave';
 import { superSaveAuth } from '@supersave/auth';
 import express from 'express';
+import { EntityDefinition, SuperSave } from 'supersave';
 import http from 'node:http';
 export { requester } from './requester';
 

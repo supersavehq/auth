@@ -1,16 +1,12 @@
 import type { SuperSave } from 'supersave';
+import { generateAccessToken } from './generate-access-token';
+import { randomBytes } from './utils';
 import { getRefreshTokenRepository } from '../db';
 import type { User } from '../types';
+import type { Config, Tokens } from '../types';
 import { timeInSeconds } from '../utils';
-import { generateAccessToken } from './generate-access-token';
-import type { Tokens, Config } from '../types';
-import { randomBytes } from './utils';
 
-export async function generateTokens(
-  superSave: SuperSave,
-  config: Config,
-  user: User
-): Promise<Tokens> {
+export async function generateTokens(superSave: SuperSave, config: Config, user: User): Promise<Tokens> {
   const bytes = await randomBytes();
   const refreshToken = bytes.toString('hex').slice(0, 32);
   const refreshTokenRepository = getRefreshTokenRepository(superSave);
@@ -23,7 +19,7 @@ export async function generateTokens(
     expiresAt,
   });
 
-  const accessToken = await generateAccessToken(config, user.id);
+  const accessToken = generateAccessToken(config, user.id);
 
   return {
     refreshToken,

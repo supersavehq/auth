@@ -1,10 +1,10 @@
-import { clear } from '../../mysql';
-import { getSuperSave } from '../../utils/db';
-import { superSaveAuth } from '../../..';
 import express from 'express';
 import supertest from 'supertest';
+import { superSaveAuth } from '../../..';
 import { hash } from '../../../src/auth/hash';
 import { getUserRepository } from '../../../src/db';
+import { clear } from '../../mysql';
+import { getSuperSave } from '../../utils/database';
 import { getUser } from '../../utils/fixtures';
 
 /* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
@@ -34,19 +34,14 @@ describe('verifyAccessToken', () => {
     // First get a valid token
     const passwordHash = await hash('password');
     const userRepository = getUserRepository(superSave);
-    const user = await userRepository.create(
-      getUser({ password: passwordHash })
-    );
+    const user = await userRepository.create(getUser({ password: passwordHash }));
 
     const request = { email: user.email, password: 'password' };
-    const loginResponse = await supertest(app)
-      .post('/auth/login')
-      .send(request)
-      .expect(200);
+    const loginResponse = await supertest(app).post('/auth/login').send(request).expect(200);
 
     const accessToken = loginResponse.body.data.accessToken;
 
-    const result = await verifyAccessToken(accessToken);
+    const result = verifyAccessToken(accessToken);
     expect(result).toEqual(user.id);
   });
 
@@ -66,7 +61,7 @@ describe('verifyAccessToken', () => {
     authStop = stop;
 
     try {
-      await verifyAccessToken(token);
+      verifyAccessToken(token);
       expect(false).toBeTruthy(); // We don't expect to end up here, an error should be thrown.
     } catch (error) {
       expect(error instanceof Error).toBeTruthy();

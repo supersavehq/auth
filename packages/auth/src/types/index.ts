@@ -25,9 +25,7 @@ export type ErrorResponse = {
   message: string;
 };
 
-export type RegistrationResponse =
-  | RegistrationResponseSuccess
-  | RegistrationResponseFailure;
+export type RegistrationResponse = RegistrationResponseSuccess | RegistrationResponseFailure;
 export type RegistrationResponseSuccess = {
   data: {
     success: true;
@@ -42,9 +40,7 @@ export type RegistrationResponseFailure = {
   };
 };
 
-export type RefreshTokenResponse =
-  | RefreshTokenResponseSuccess
-  | RefreshTokenResponseFailure;
+export type RefreshTokenResponse = RefreshTokenResponseSuccess | RefreshTokenResponseFailure;
 export type RefreshTokenResponseSuccess = {
   data: {
     success: true;
@@ -70,10 +66,7 @@ export type Config<T extends User = User> = {
     login?: (user: T) => void | Promise<void>;
     refresh?: (user: T) => void | Promise<void>;
     changePassword?: (user: T) => void | Promise<void>;
-    requestResetPassword?: (
-      user: T,
-      identifier: string
-    ) => void | Promise<void>;
+    requestResetPassword?: (user: T, identifier: string) => void | Promise<void>;
     doResetPassword?: (user: T) => void | Promise<void>;
   };
 };
@@ -118,6 +111,4 @@ export type DoResetPasswordResponseSuccess = {
   };
 };
 
-export type DoResetPasswordResponse =
-  | DoResetPasswordResponseFailed
-  | DoResetPasswordResponseSuccess;
+export type DoResetPasswordResponse = DoResetPasswordResponseFailed | DoResetPasswordResponseSuccess;

@@ -1,6 +1,6 @@
 import type { User } from '../../src/types';
 
-export function getUser(props: Partial<User> = {}): User {
+export function getUser(properties: Partial<User> = {}): User {
   const now = Math.round(Date.now() / 1000);
 
   return {
@@ -10,6 +10,6 @@ export function getUser(props: Partial<User> = {}): User {
     password: 'pw-hash',
     created: now,
     lastLogin: now,
-    ...props,
+    ...properties,
   };
 }

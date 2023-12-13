@@ -1,17 +1,11 @@
 import type { Request, Response } from 'express';
-import { getSuperSave } from '../../../utils/db';
+import { getRefreshTokenRepository, getUserRepository } from '../../../../src/db';
 import { register } from '../../../../src/http/routes';
-import type {
-  ErrorResponse,
-  RegistrationResponse,
-} from '../../../../src/types';
-import { getUser } from '../../../utils/fixtures';
-import {
-  getRefreshTokenRepository,
-  getUserRepository,
-} from '../../../../src/db';
-import { getConfig } from '../../../utils/config';
+import type { ErrorResponse, RegistrationResponse } from '../../../../src/types';
 import { clear } from '../../../mysql';
+import { getConfig } from '../../../utils/config';
+import { getSuperSave } from '../../../utils/database';
+import { getUser } from '../../../utils/fixtures';
 
 beforeEach(clear);
 
@@ -73,50 +67,40 @@ describe('register', () => {
     expect(jsonMock).toHaveBeenCalledWith(expectedResponse);
   });
 
-  it.each([undefined, jest.fn()])(
-    'registers a new user and returns tokens',
-    async (registrationHook) => {
-      const superSave = await getSuperSave();
+  it.each([undefined, jest.fn()])('registers a new user and returns tokens', async (registrationHook) => {
+    const superSave = await getSuperSave();
 
-      const handler = register(superSave, {
-        ...getConfig(),
-        hooks:
-          typeof registrationHook !== 'undefined'
-            ? { registration: registrationHook }
-            : {},
-      });
+    const handler = register(superSave, {
+      ...getConfig(),
+      hooks: registrationHook === undefined ? {} : { registration: registrationHook },
+    });
 
-      const request = {
-        body: { email: 'user@example.com', password: 'foobar' },
-      };
-      const jsonMock = jest.fn();
-      const response = {
-        json: jsonMock,
-      };
-      await handler(request as Request, response as unknown as Response);
+    const request = {
+      body: { email: 'user@example.com', password: 'foobar' },
+    };
+    const jsonMock = jest.fn();
+    const response = {
+      json: jsonMock,
+    };
+    await handler(request as Request, response as unknown as Response);
 
-      expect(jsonMock).toHaveBeenCalled();
-      expect(jsonMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({ success: true }),
-        })
-      );
+    expect(jsonMock).toHaveBeenCalled();
+    expect(jsonMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ success: true }),
+      })
+    );
 
-      const userRepository = await getUserRepository(superSave);
-      const users = await userRepository.getByQuery(
-        userRepository.createQuery().eq('email', 'user@example.com')
-      );
-      expect(users).toHaveLength(1);
+    const userRepository = getUserRepository(superSave);
+    const users = await userRepository.getByQuery(userRepository.createQuery().eq('email', 'user@example.com'));
+    expect(users).toHaveLength(1);
 
-      const tokenResponse = jsonMock.mock.calls[0][0];
-      const refreshTokenRepository = getRefreshTokenRepository(superSave);
-      const token = await refreshTokenRepository.getById(
-        tokenResponse.data.refreshToken
-      );
-      expect(token).toBeDefined();
-      if (typeof registrationHook !== 'undefined') {
-        expect(registrationHook).toBeCalledWith(users[0]);
-      }
+    const tokenResponse = jsonMock.mock.calls[0][0];
+    const refreshTokenRepository = getRefreshTokenRepository(superSave);
+    const token = await refreshTokenRepository.getById(tokenResponse.data.refreshToken);
+    expect(token).toBeDefined();
+    if (registrationHook !== undefined) {
+      expect(registrationHook).toBeCalledWith(users[0]);
     }
-  );
+  });
 });
