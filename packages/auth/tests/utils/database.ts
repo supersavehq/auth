@@ -1,10 +1,10 @@
 import { SuperSave } from 'supersave';
-import { initializeDb } from '../../src/db';
+import { initializeDatabase } from '../../src/db';
 import getConnection from '../connection';
 
 export async function getSuperSave(): Promise<SuperSave> {
   const superSave = await SuperSave.create(getConnection());
 
-  await initializeDb(superSave);
+  await initializeDatabase(superSave);
   return superSave;
 }

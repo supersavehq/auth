@@ -1,11 +1,11 @@
 import type { Request, Response } from 'express';
-import { getSuperSave } from '../../utils/db';
 import { checkPassword } from '../../../src/auth';
-import type { ErrorResponse } from '../../../src/types';
-import { getUser } from '../../utils/fixtures';
 import { hash } from '../../../src/auth/hash';
 import { getUserRepository } from '../../../src/db';
+import type { ErrorResponse } from '../../../src/types';
 import { clear } from '../../mysql';
+import { getSuperSave } from '../../utils/database';
+import { getUser } from '../../utils/fixtures';
 
 beforeEach(clear);
 
@@ -25,11 +25,7 @@ describe('check-password', () => {
       };
       statusMock.mockReturnValue(response);
 
-      const result = await checkPassword(
-        superSave,
-        request as Request,
-        response as unknown as Response
-      );
+      const result = await checkPassword(superSave, request as Request, response as unknown as Response);
 
       expect(result).toBeUndefined();
       expect(statusMock).toHaveBeenCalled();
@@ -52,11 +48,7 @@ describe('check-password', () => {
       json: jsonMock,
     };
 
-    const result = await checkPassword(
-      superSave,
-      request as Request,
-      response as unknown as Response
-    );
+    const result = await checkPassword(superSave, request as Request, response as unknown as Response);
 
     expect(result).toStrictEqual(false);
     expect(jsonMock).not.toHaveBeenCalled();
@@ -76,11 +68,7 @@ describe('check-password', () => {
       json: jsonMock,
     };
 
-    const result = await checkPassword(
-      superSave,
-      request as Request,
-      response as unknown as Response
-    );
+    const result = await checkPassword(superSave, request as Request, response as unknown as Response);
 
     expect(result).toStrictEqual(false);
     expect(jsonMock).not.toHaveBeenCalled();
@@ -99,11 +87,7 @@ describe('check-password', () => {
     const response = {
       json: jsonMock,
     };
-    const result = await checkPassword(
-      superSave,
-      request as Request,
-      response as unknown as Response
-    );
+    const result = await checkPassword(superSave, request as Request, response as unknown as Response);
 
     expect(result).toEqual(user);
     expect(jsonMock).not.toHaveBeenCalled();

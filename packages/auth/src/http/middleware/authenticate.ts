@@ -1,17 +1,13 @@
-import type { Request, Response } from 'express';
 import Debug from 'debug';
+import type { Request, Response } from 'express';
 import { verifyAccessToken } from '../../auth';
-import type { ErrorResponse, Config } from '../../types';
+import type { Config, ErrorResponse } from '../../types';
 import { isEndpointSecured } from '../../utils';
 
 const debug = Debug('supersave:auth:middleware:authenticate');
 
 export const authenticate = (config: Config) =>
-  async function (
-    req: Request,
-    res: Response,
-    next: () => void
-  ): Promise<void> {
+  function (req: Request, res: Response, next: () => void): void {
     if (!isEndpointSecured(config, req.path)) {
       next();
       return;
@@ -39,7 +35,7 @@ export const authenticate = (config: Config) =>
 
     const token = match[1] ?? '';
     try {
-      const parsedToken = await verifyAccessToken(config, token);
+      const parsedToken = verifyAccessToken(config, token);
       // @ts-expect-error njwt types do not define the sub on the body, but there is.
       res.locals.auth = { userId: parsedToken.body.sub };
       next();

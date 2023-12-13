@@ -1,33 +1,5 @@
-import getConnection from './connection';
 import mysql, { Connection } from 'mysql';
-
-export const clear = async (): Promise<void> => {
-  const connectionString = getConnection();
-
-  if (connectionString.slice(0, 9) === 'sqlite://') {
-    return;
-  }
-
-  const connection: Connection = mysql.createConnection(connectionString);
-
-  const tables: Record<string, any>[] = await getQuery(
-    connection,
-    'SHOW TABLES'
-  );
-  const promises: Promise<void>[] = [];
-  Object.values(tables).forEach(async (tableRow) => {
-    promises.push(
-      executeQuery(
-        connection,
-        `DROP TABLE ${connection.escapeId(
-          Object.values(tableRow)[0] as string
-        )}`
-      )
-    );
-  });
-  await Promise.all(promises);
-  connection.end();
-};
+import getConnection from './connection';
 
 const executeQuery = async (
   connection: Connection,
@@ -35,9 +7,9 @@ const executeQuery = async (
   values: (string | number | boolean | null)[] = []
 ): Promise<void> =>
   new Promise((resolve, reject) => {
-    connection.query(query, values, (err: any) => {
-      if (err) {
-        reject(err);
+    connection.query(query, values, (error: unknown) => {
+      if (error) {
+        reject(error);
         return;
       }
       resolve();
@@ -50,11 +22,29 @@ const getQuery = async <T>(
   values: (string | number | boolean | null)[] = []
 ): Promise<T[]> =>
   new Promise((resolve, reject) => {
-    connection.query(query, values, (err: any, results: T[]) => {
-      if (err) {
-        reject(err);
+    connection.query(query, values, (error: unknown, results: T[]) => {
+      if (error) {
+        reject(error);
         return;
       }
       resolve(results);
     });
   });
+
+export const clear = async (): Promise<void> => {
+  const connectionString = getConnection();
+
+  if (connectionString.slice(0, 9) === 'sqlite://') {
+    return;
+  }
+
+  const connection: Connection = mysql.createConnection(connectionString);
+
+  const tables: Record<string, unknown>[] = await getQuery(connection, 'SHOW TABLES');
+  const promises: Promise<void>[] = [];
+  for (const tableRow of tables) {
+    promises.push(executeQuery(connection, `DROP TABLE ${connection.escapeId(Object.values(tableRow)[0] as string)}`));
+  }
+  await Promise.all(promises);
+  connection.end();
+};

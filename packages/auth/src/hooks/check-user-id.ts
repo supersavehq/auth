@@ -1,6 +1,6 @@
+import Debug from 'debug';
 import type { Response } from 'express';
 import { HookError } from 'supersave';
-import Debug from 'debug';
 
 const debug = Debug('supersave:auth:hooks');
 

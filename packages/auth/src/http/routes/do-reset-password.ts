@@ -1,13 +1,9 @@
-import type { Request, Response } from 'express';
 import Debug from 'debug';
-import {
-  getRefreshTokenRepository,
-  getResetPasswordTokenRepository,
-  getUserRepository,
-} from '../../db';
-import type { Config, DoResetPasswordResponse } from '../../types';
+import type { Request, Response } from 'express';
 import type { SuperSave } from 'supersave';
 import { generateTokens, hash } from '../../auth';
+import { getRefreshTokenRepository, getResetPasswordTokenRepository, getUserRepository } from '../../db';
+import type { Config, DoResetPasswordResponse } from '../../types';
 import { timeInSeconds } from '../../utils';
 
 const debug = Debug('supersave:auth:do-reset-password');
@@ -23,20 +19,13 @@ export const doResetPassword = (superSave: SuperSave, config: Config) =>
     }
     const { password, token } = req.body;
 
-    const resetPasswordTokenRepository = await getResetPasswordTokenRepository(
-      superSave
-    );
-    const dbResetToken = await resetPasswordTokenRepository.getOneByQuery(
+    const resetPasswordTokenRepository = getResetPasswordTokenRepository(superSave);
+    const databaseResetToken = await resetPasswordTokenRepository.getOneByQuery(
       resetPasswordTokenRepository.createQuery().eq('identifier', token)
     );
 
-    if (
-      dbResetToken === null ||
-      dbResetToken.expires < Math.floor(Date.now() / 1000)
-    ) {
-      debug(
-        'Reset token not found in the database, or it has already expired.'
-      );
+    if (databaseResetToken === null || databaseResetToken.expires < Math.floor(Date.now() / 1000)) {
+      debug('Reset token not found in the database, or it has already expired.');
       const response: DoResetPasswordResponse = {
         data: {
           success: false,
@@ -47,8 +36,8 @@ export const doResetPassword = (superSave: SuperSave, config: Config) =>
       return;
     }
 
-    const userRepository = await getUserRepository(superSave);
-    const user = await userRepository.getById(dbResetToken.userId);
+    const userRepository = getUserRepository(superSave);
+    const user = await userRepository.getById(databaseResetToken.userId);
     if (user === null) {
       debug('Could not find user linked to reset token.');
       res.status(500).send();
@@ -61,21 +50,17 @@ export const doResetPassword = (superSave: SuperSave, config: Config) =>
     await userRepository.update(user);
 
     debug('Removing reset token.');
-    await resetPasswordTokenRepository.deleteUsingId(dbResetToken.id);
+    await resetPasswordTokenRepository.deleteUsingId(databaseResetToken.id);
 
     debug('Invalidating all refresh tokens.');
-    const tokenRepository = await getRefreshTokenRepository(superSave);
-    const existingTokens = await tokenRepository.getByQuery(
-      tokenRepository.createQuery().eq('userId', user.id)
-    );
-    await Promise.all(
-      existingTokens.map((token) => tokenRepository.deleteUsingId(token.id))
-    );
+    const tokenRepository = getRefreshTokenRepository(superSave);
+    const existingTokens = await tokenRepository.getByQuery(tokenRepository.createQuery().eq('userId', user.id));
+    await Promise.all(existingTokens.map((token) => tokenRepository.deleteUsingId(token.id)));
 
     const tokens = await generateTokens(superSave, config, user);
 
     if (config.hooks?.doResetPassword) {
-      config.hooks.doResetPassword(user);
+      void config.hooks.doResetPassword(user);
     }
 
     const response: DoResetPasswordResponse = {

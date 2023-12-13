@@ -20,44 +20,28 @@
   "module": "./dist/auth-client.module.js",
   "unpkg": "./dist/auth-client.umd.js",
   "types": "./dist/index.d.ts",
+  "prettier": "eslint-config-daangemist/.prettierrc",
   "scripts": {
     "build": "microbundle",
     "dev": "microbundle watch",
     "test": "jest",
     "test:watch": "jest --watch",
-    "lint": "eslint --ext=.ts ./src ./tests",
-    "lint:fix": "eslint --ext=.ts --fix ./src ./tests",
-    "format": "prettier --check ./src ./tests",
-    "format:fix": "prettier --write ./src ./tests"
-  },
-  "eslintConfig": {
-    "parser": "@typescript-eslint/parser",
-    "extends": [
-      "plugin:@typescript-eslint/recommended",
-      "plugin:unicorn/recommended"
-    ],
-    "plugins": [
-      "unicorn"
-    ],
-    "rules": {
-      "unicorn/filename-case": "error"
-    }
+    "lint": "concurrently --kill-others-on-fail \"npm:lint:*\"",
+    "lint:prettier": "prettier --check --log-level=warn src tests",
+    "lint:tsc": "tsc --noEmit",
+    "lint:eslint": "eslint --ext=js,jsx,ts,tsx --max-warnings=0 src tests",
+    "format": "prettier --write src tests && eslint --ext=js,jsx,ts,tsx --fix src tests"
   },
   "devDependencies": {
     "@supersave/auth": "^1.0.0",
     "@types/express": "^4.17.14",
     "@types/jest": "^28.1.6",
     "@types/jest-when": "^3.5.2",
-    "@typescript-eslint/eslint-plugin": "^5.31.0",
-    "@typescript-eslint/parser": "^5.31.0",
-    "axios": "^1.1.2",
-    "eslint": "^8.20.0",
-    "eslint-plugin-unicorn": "^49.0.0",
+    "axios": "^1.6.2",
     "express": "^4.17.3",
     "jest": "^29.7.0",
     "jest-when": "^3.5.1",
     "microbundle": "^0.15.0",
-    "prettier": "^2.7.1",
     "supersave": "^0.14.2",
     "ts-jest": "^29.1.1",
     "typescript": "^4.7.4"

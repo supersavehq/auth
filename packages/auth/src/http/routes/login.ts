@@ -1,11 +1,11 @@
-import type { Request, Response } from 'express';
 import Debug from 'debug';
-import { getUserRepository } from '../../db';
-import type { LoginResponse, Config } from '../../types';
-import { generateTokens } from '../../auth';
+import type { Request, Response } from 'express';
 import type { SuperSave } from 'supersave';
-import { timeInSeconds } from '../../utils';
+import { generateTokens } from '../../auth';
 import { checkPassword } from '../../auth';
+import { getUserRepository } from '../../db';
+import type { Config, LoginResponse } from '../../types';
+import { timeInSeconds } from '../../utils';
 
 const debug = Debug('supersave:auth:login');
 
@@ -31,7 +31,7 @@ export const login = (superSave: SuperSave, config: Config) =>
     await repository.update(user);
 
     if (config.hooks?.login) {
-      config.hooks.login(user);
+      void config.hooks.login(user);
     }
 
     const response: LoginResponse = {

@@ -1,5 +1,5 @@
-import type { Options, Requester } from '../types';
 import { fetchRequester } from './fetch';
+import type { Options, Requester } from '../types';
 
 export function getRequester(options: Options): Requester {
   if (options.requester) {

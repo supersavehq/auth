@@ -1,8 +1,8 @@
+import Debug from 'debug';
 import type { Request, Response } from 'express';
 import { Collection, HookError } from 'supersave';
-import Debug from 'debug';
-import type { CollectionEntityWithUserId } from '../types';
 import checkUserId from './check-user-id';
+import type { CollectionEntityWithUserId } from '../types';
 
 const debug = Debug('supersave:auth:hooks:delete-before');
 
@@ -20,11 +20,7 @@ export default function (
 
   // Check if the item we are deleting belongs to this user.
   if (entity.userId !== res.locals['auth'].userId) {
-    debug(
-      'Provided entity userId %s does not match local userId %s',
-      entity.userId,
-      userId
-    );
+    debug('Provided entity userId %s does not match local userId %s', entity.userId, userId);
     throw new HookError('Not authorized.', 401);
   }
 }

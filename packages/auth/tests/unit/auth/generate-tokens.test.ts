@@ -1,9 +1,9 @@
-import { getSuperSave } from '../../utils/db';
 import { generateTokens } from '../../../src/auth';
-import type { Config } from '../../../src/types';
-import { getUser } from '../../utils/fixtures';
 import { getRefreshTokenRepository } from '../../../src/db';
+import type { Config } from '../../../src/types';
 import { clear } from '../../mysql';
+import { getSuperSave } from '../../utils/database';
+import { getUser } from '../../utils/fixtures';
 
 beforeEach(clear);
 

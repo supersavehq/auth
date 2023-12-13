@@ -1,9 +1,9 @@
 import type {
-  Requester,
+  ChangePasswordDataResponse,
   ChangePasswordRequest,
   ChangePasswordResponse,
   ChangePasswordResponseSuccess,
-  ChangePasswordDataResponse,
+  Requester,
 } from '../types';
 
 export const changePassword =
@@ -15,12 +15,13 @@ export const changePassword =
       password: request.password,
     };
 
-    const rsp = await requester.post<
-      ChangePasswordDataResponse,
-      Omit<ChangePasswordRequest, 'accessToken'>
-    >(`${baseUrl}/change-password`, httpRequest, {
-      Authorization: `Bearer ${request.accessToken}`,
-    });
+    const rsp = await requester.post<ChangePasswordDataResponse, Omit<ChangePasswordRequest, 'accessToken'>>(
+      `${baseUrl}/change-password`,
+      httpRequest,
+      {
+        Authorization: `Bearer ${request.accessToken}`,
+      }
+    );
 
     if (rsp.statusCode === 400) {
       return { success: false, reason: 'INVALID_PASSWORD' };
@@ -31,8 +32,7 @@ export const changePassword =
       return { success: false, reason: 'UNKNOWN' };
     }
 
-    const successResponse = rsp.data
-      .data as unknown as ChangePasswordResponseSuccess;
+    const successResponse = rsp.data.data as unknown as ChangePasswordResponseSuccess;
 
     return {
       ...successResponse,

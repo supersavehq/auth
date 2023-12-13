@@ -1,5 +1,5 @@
-import { getServer, requester } from '../../tests/integration/utils';
 import { initialize } from '../..';
+import { getServer, requester } from '../../tests/integration/utils';
 
 const EMAIL = 'test@test.com';
 const PASSWORD = 'abcdefg';
@@ -10,7 +10,7 @@ const serverInfoPromise = getServer();
 
 afterAll(async () => {
   const server = await serverInfoPromise;
-  server.close();
+  await server.close();
 });
 
 describe('register', () => {
@@ -155,9 +155,7 @@ describe('refresh', () => {
       });
 
       expect(loginResponse.authorized).toBe(true);
-      const accessToken = loginResponse.authorized
-        ? loginResponse.accessToken
-        : '';
+      const accessToken = loginResponse.authorized ? loginResponse.accessToken : '';
 
       const response = await client.changePassword({
         accessToken,
@@ -184,9 +182,7 @@ describe('refresh', () => {
       });
 
       expect(loginResponse.authorized).toBe(true);
-      const accessToken = loginResponse.authorized
-        ? loginResponse.accessToken
-        : '';
+      const accessToken = loginResponse.authorized ? loginResponse.accessToken : '';
 
       const response = await client.changePassword({
         accessToken,
