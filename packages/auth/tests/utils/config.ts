@@ -5,9 +5,9 @@ const DEFAULT_CONFIG: Config = {
   tokenAlgorithm: 'HS512',
   accessTokenExpiration: 300,
   refreshTokenExpiration: 3600 * 24 * 90, // 3 months,
-  resetPasswordTokenExpiration: 3600, // 1 hour
   notSecuredEndpoints: [],
   securedEndpoints: [],
+  methods: [{ type: 'local-password', requestResetPassword: () => {} }],
 };
 
 export function getConfig(config: Partial<Config> = {}): Config {

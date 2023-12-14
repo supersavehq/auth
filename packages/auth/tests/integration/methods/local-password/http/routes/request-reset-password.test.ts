@@ -1,12 +1,13 @@
 /* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
 import supertest from 'supertest';
-import { RequestResetPasswordRequest, superSaveAuth } from '../../../..';
-import { hash } from '../../../../src/auth/hash';
-import { getResetPasswordTokenRepository, getUserRepository } from '../../../../src/db';
-import { clear } from '../../../mysql';
-import { getSuperSave } from '../../../utils/database';
-import { getUser } from '../../../utils/fixtures';
+import { RequestResetPasswordRequest, superSaveAuth } from '../../../../../..';
+import { hash } from '../../../../../../src/auth/hash';
+import { getUserRepository } from '../../../../../../src/db';
+import { getResetPasswordTokenRepository } from '../../../../../../src/methods/local-password/database';
+import { clear } from '../../../../../mysql';
+import { getSuperSave } from '../../../../../utils/database';
+import { getUser } from '../../../../../utils/fixtures';
 
 const PASSWORD = 'foo-bar';
 
@@ -25,8 +26,11 @@ describe('request reset password', () => {
     const app = express();
     app.use(express.json());
 
+    const sendCallback = jest.fn();
+
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: sendCallback }],
     });
     const { router } = auth;
     authStop = auth.stop;
@@ -38,6 +42,7 @@ describe('request reset password', () => {
     };
 
     await supertest(app).post('/auth/reset-password').send(request).expect(201);
+    expect(sendCallback).not.toBeCalled();
   });
 
   it.each([undefined, jest.fn()])('generates an identifier when requested', async (requestResetPasswordHook) => {
@@ -46,8 +51,11 @@ describe('request reset password', () => {
     const app = express();
     app.use(express.json());
 
+    const sendCallback = jest.fn();
+
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: sendCallback }],
       hooks: requestResetPasswordHook === undefined ? {} : { requestResetPassword: requestResetPasswordHook },
     });
     const { router } = auth;
@@ -65,6 +73,7 @@ describe('request reset password', () => {
     };
 
     await supertest(app).post('/auth/reset-password').send(request).expect(201);
+    expect(sendCallback).toBeCalledWith(user, expect.anything());
 
     if (requestResetPasswordHook !== undefined) {
       expect(requestResetPasswordHook).toBeCalled();
@@ -83,6 +92,7 @@ describe('request reset password', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
     const { router } = auth;
     authStop = auth.stop;

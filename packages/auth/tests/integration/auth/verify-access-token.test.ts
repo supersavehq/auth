@@ -26,6 +26,7 @@ describe('verifyAccessToken', () => {
 
     const { stop, verifyAccessToken, router } = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
 
     authStop = stop;
@@ -56,6 +57,7 @@ describe('verifyAccessToken', () => {
 
     const { stop, verifyAccessToken } = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
 
     authStop = stop;

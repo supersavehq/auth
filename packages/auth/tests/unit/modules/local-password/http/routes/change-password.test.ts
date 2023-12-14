@@ -1,16 +1,16 @@
 /* eslint-disable unicorn/no-useless-undefined */
 import type { Request, Response } from 'express';
 import { when } from 'jest-when';
-import { checkPassword, generateTokens, hash } from '../../../../src/auth';
-import { getUserRepository } from '../../../../src/db';
-import { changePassword } from '../../../../src/http/routes';
-import type { ChangePasswordResponseSuccess } from '../../../../src/types';
-import { clear } from '../../../mysql';
-import { getConfig } from '../../../utils/config';
-import { getSuperSave } from '../../../utils/database';
-import { getUser } from '../../../utils/fixtures';
+import { checkPassword, generateTokens, hash } from '../../../../../../src/auth';
+import { getUserRepository } from '../../../../../../src/db';
+import { changePassword } from '../../../../../../src/methods/local-password/http/routes/change-password';
+import type { ChangePasswordResponseSuccess } from '../../../../../../src/methods/local-password/types';
+import { clear } from '../../../../../mysql';
+import { getConfig } from '../../../../../utils/config';
+import { getSuperSave } from '../../../../../utils/database';
+import { getUser } from '../../../../../utils/fixtures';
 
-jest.mock('../../../../src/auth', () => {
+jest.mock('../../../../../../src/auth', () => {
   return {
     checkPassword: jest.fn(),
     generateTokens: jest.fn(),

@@ -18,9 +18,9 @@ describe('generateTokens', () => {
       tokenAlgorithm: 'HS512',
       accessTokenExpiration: 1,
       refreshTokenExpiration: 1,
-      resetPasswordTokenExpiration: 1,
       notSecuredEndpoints: [],
       securedEndpoints: [],
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     };
 
     const tokens = await generateTokens(

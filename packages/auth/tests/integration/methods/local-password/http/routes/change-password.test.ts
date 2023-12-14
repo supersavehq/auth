@@ -1,12 +1,12 @@
 /* eslint-disable unicorn/consistent-destructuring */
 import express, { Application } from 'express';
 import supertest from 'supertest';
-import { superSaveAuth } from '../../../..';
-import { hash } from '../../../../src/auth/hash';
-import { getUserRepository } from '../../../../src/db';
-import { clear } from '../../../mysql';
-import { getSuperSave } from '../../../utils/database';
-import { getUser } from '../../../utils/fixtures';
+import { superSaveAuth } from '../../../../../..';
+import { hash } from '../../../../../../src/auth/hash';
+import { getUserRepository } from '../../../../../../src/db';
+import { clear } from '../../../../../mysql';
+import { getSuperSave } from '../../../../../utils/database';
+import { getUser } from '../../../../../utils/fixtures';
 
 /* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
 let authStop: () => void;
@@ -41,6 +41,7 @@ describe('change-password', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
     const { router } = auth;
 
@@ -69,6 +70,7 @@ describe('change-password', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
     const { router } = auth;
     authStop = auth.stop;
@@ -106,6 +108,7 @@ describe('change-password', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
     const { router } = auth;
     authStop = auth.stop;
@@ -142,6 +145,7 @@ describe('change-password', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
       hooks: changePasswordHook === undefined ? {} : { changePassword: changePasswordHook },
     });
     const { router } = auth;

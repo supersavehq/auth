@@ -103,7 +103,10 @@ app.use(express.json());
 const superTest = supertest(app);
 // We initialize supersave manually here, because we do some more setup than in the boiler plate.
 const superSavePromise = SuperSave.create(getConnection()).then((superSave: SuperSave) => {
-  return superSaveAuth(superSave, { tokenSecret: 'aaa' })
+  return superSaveAuth(superSave, {
+    tokenSecret: 'aaa',
+    methods: [{ type: 'local-password', requestResetPassword: () => {} }],
+  })
     .then(({ router, middleware, addCollection, stop }) => {
       authStop = stop; // Store this so we can stop auth when the tests are done.
       return Promise.all([addCollection(planetEntity), addCollection(moonEntity), addCollection(systemEntity)]).then(
