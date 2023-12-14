@@ -47,7 +47,8 @@ export const register = (superSave: SuperSave, config: Config) =>
 
     const createdUser = await repository.create(user);
 
-    const tokens = await generateTokens(superSave, config, createdUser);
+    // eslint-disable-next-line unicorn/no-useless-undefined
+    const tokens = await generateTokens(superSave, config, createdUser, undefined);
     const response: RegistrationResponse = {
       data: {
         success: true,

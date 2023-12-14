@@ -1,28 +1,46 @@
+import { add } from 'date-fns';
 import type { SuperSave } from 'supersave';
 import { generateAccessToken } from './generate-access-token';
-import { randomBytes } from './utils';
+import { randomBytes, sha256 } from './utils';
 import { getRefreshTokenRepository } from '../db';
 import type { User } from '../types';
 import type { Config, Tokens } from '../types';
+import type { RefreshToken } from '../types/db';
 import { timeInSeconds } from '../utils';
 
-export async function generateTokens(superSave: SuperSave, config: Config, user: User): Promise<Tokens> {
-  const bytes = await randomBytes();
-  const refreshToken = bytes.toString('hex').slice(0, 32);
+export const HASH_SEPARATOR = '_';
+export const TOKEN_SEPARATOR = '_';
+
+export async function generateTokens(
+  superSave: SuperSave,
+  config: Config,
+  user: User,
+  refreshTokenToReplace: RefreshToken | undefined
+): Promise<Tokens> {
   const refreshTokenRepository = getRefreshTokenRepository(superSave);
 
-  const expiresAt = timeInSeconds() + config.refreshTokenExpiration;
-  await refreshTokenRepository.create({
-    // @ts-expect-error we are providing an ID, superSave does an omit on that attribute.
-    id: refreshToken,
-    userId: user.id,
-    expiresAt,
-  });
+  const longSalt = await randomBytes();
+  const shortenedSalt = longSalt.toString('hex').slice(0, 32);
+  const token = await randomBytes();
+  const tokenHash = sha256(`${shortenedSalt}${HASH_SEPARATOR}${token.toString('hex')}`);
 
+  const expiresAt = add(new Date(), { seconds: config.refreshTokenExpiration });
+
+  // remove the old token
+  if (refreshTokenToReplace) {
+    await refreshTokenRepository.deleteUsingId(refreshTokenToReplace.id);
+  }
+
+  const databaseToken = await refreshTokenRepository.create({
+    userId: user.id,
+    expiresAt: timeInSeconds(expiresAt),
+    tokenHash,
+    tokenSalt: shortenedSalt,
+  });
   const accessToken = generateAccessToken(config, user.id);
 
   return {
-    refreshToken,
+    refreshToken: `${databaseToken.id}${TOKEN_SEPARATOR}${token.toString('hex')}`,
     accessToken,
   };
 }

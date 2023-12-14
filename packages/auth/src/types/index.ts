@@ -45,6 +45,7 @@ export type RefreshTokenResponseSuccess = {
   data: {
     success: true;
     accessToken: string;
+    refreshToken: string;
   };
 };
 export type RefreshTokenResponseFailure = {

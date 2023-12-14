@@ -1,6 +1,9 @@
 import type { Config } from '../types';
 
-export function timeInSeconds(): number {
+export function timeInSeconds(date?: Date): number {
+  if (date) {
+    return Math.round(date.getTime() / 1000);
+  }
   return Math.round(Date.now() / 1000);
 }
 

@@ -23,7 +23,8 @@ export const login = (superSave: SuperSave, config: Config) =>
     }
 
     const user = passwordCheckResult;
-    const tokens = await generateTokens(superSave, config, user);
+    // eslint-disable-next-line unicorn/no-useless-undefined
+    const tokens = await generateTokens(superSave, config, user, undefined);
 
     const repository = getUserRepository(superSave);
     user.lastLogin = timeInSeconds();

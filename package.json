@@ -6,6 +6,7 @@
     "build": "nx run-many --target=build",
     "audit": "nx run-many --target=audit",
     "audit:fix": "nx run-many --target=audit:fix",
+    "format": "nx run-many --target=format",
     "lint": "nx run-many --target=lint",
     "clean": "nx run-many --target=clean",
     "test": "nx run-many --target=test"

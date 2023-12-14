@@ -57,7 +57,8 @@ export const doResetPassword = (superSave: SuperSave, config: Config) =>
     const existingTokens = await tokenRepository.getByQuery(tokenRepository.createQuery().eq('userId', user.id));
     await Promise.all(existingTokens.map((token) => tokenRepository.deleteUsingId(token.id)));
 
-    const tokens = await generateTokens(superSave, config, user);
+    // eslint-disable-next-line unicorn/no-useless-undefined
+    const tokens = await generateTokens(superSave, config, user, undefined);
 
     if (config.hooks?.doResetPassword) {
       void config.hooks.doResetPassword(user);
