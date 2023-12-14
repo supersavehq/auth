@@ -1,11 +1,11 @@
 import Debug from 'debug';
 import type { Request, Response } from 'express';
 import type { SuperSave } from 'supersave';
-import { generateTokens } from '../../auth';
-import { checkPassword } from '../../auth';
-import { getUserRepository } from '../../db';
-import type { Config, LoginResponse } from '../../types';
-import { timeInSeconds } from '../../utils';
+import { checkPassword, generateTokens } from '../../../../auth';
+import { getUserRepository } from '../../../../db';
+import type { Config } from '../../../../types';
+import { timeInSeconds } from '../../../../utils';
+import type { LoginResponse } from '../../types';
 
 const debug = Debug('supersave:auth:login');
 

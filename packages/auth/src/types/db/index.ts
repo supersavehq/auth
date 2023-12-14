@@ -16,10 +16,3 @@ export type RefreshToken = {
   tokenHash: string;
   tokenSalt: string;
 };
-
-export type ResetPasswordToken = {
-  id: string;
-  identifier: string;
-  expires: number;
-  userId: string;
-};

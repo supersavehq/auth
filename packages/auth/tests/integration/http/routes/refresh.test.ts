@@ -25,6 +25,7 @@ describe('refresh', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
       hooks: refreshHook === undefined ? {} : { refresh: refreshHook },
     });
     const { router } = auth;
@@ -72,6 +73,7 @@ describe('refresh', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
     const { router } = auth;
     authStop = auth.stop;

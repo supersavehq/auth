@@ -2,7 +2,7 @@
 /* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
 import supertest from 'supertest';
-import { ProvidedConfig, superSaveAuth } from '../../../..';
+import { Config, superSaveAuth } from '../../../..';
 import { hash } from '../../../../src/auth/hash';
 import { getUserRepository } from '../../../../src/db';
 import { clear } from '../../../mysql';
@@ -27,6 +27,7 @@ describe('authenticate', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
     const { router, middleware } = auth;
     authStop = auth.stop;
@@ -54,6 +55,7 @@ describe('authenticate', () => {
     app.use(express.json());
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
     const { router, middleware } = auth;
     authStop = auth.stop;
@@ -77,6 +79,7 @@ describe('authenticate', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
     const { router, middleware } = auth;
     authStop = auth.stop;
@@ -102,8 +105,9 @@ describe('authenticate', () => {
 });
 
 describe('it allows not secured endpoints', () => {
-  const config: ProvidedConfig = {
+  const config: Partial<Config> = {
     tokenSecret: 'secure',
+    methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     notSecuredEndpoints: [/^\/hello/],
   };
 
@@ -131,6 +135,7 @@ describe('it allows not secured endpoints', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
     const { router, middleware } = auth;
     authStop = auth.stop;
@@ -144,8 +149,9 @@ describe('it allows not secured endpoints', () => {
 });
 
 describe('it only secures configured endpoints', () => {
-  const config: ProvidedConfig = {
+  const config: Partial<Config> = {
     tokenSecret: 'secure',
+    methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     securedEndpoints: [/^\/auth\/.*/],
   };
 

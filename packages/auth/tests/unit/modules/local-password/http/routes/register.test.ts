@@ -1,11 +1,12 @@
 import type { Request, Response } from 'express';
-import { getRefreshTokenRepository, getUserRepository } from '../../../../src/db';
-import { register } from '../../../../src/http/routes';
-import type { ErrorResponse, RegistrationResponse } from '../../../../src/types';
-import { clear } from '../../../mysql';
-import { getConfig } from '../../../utils/config';
-import { getSuperSave } from '../../../utils/database';
-import { getUser } from '../../../utils/fixtures';
+import { getRefreshTokenRepository, getUserRepository } from '../../../../../../src/db';
+import { register } from '../../../../../../src/methods/local-password/http/routes/register';
+import type { RegistrationResponse } from '../../../../../../src/methods/local-password/types';
+import type { ErrorResponse } from '../../../../../../src/types';
+import { clear } from '../../../../../mysql';
+import { getConfig } from '../../../../../utils/config';
+import { getSuperSave } from '../../../../../utils/database';
+import { getUser } from '../../../../../utils/fixtures';
 
 beforeEach(clear);
 

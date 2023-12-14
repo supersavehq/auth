@@ -6,38 +6,8 @@ export type Tokens = {
   refreshToken: string;
 };
 
-export type LoginResponse = LoginResponseSuccess | LoginResponseFailure;
-export type LoginResponseSuccess = {
-  data: {
-    authorized: true;
-    accessToken: string;
-    refreshToken: string;
-  };
-};
-export type LoginResponseFailure = {
-  data: {
-    authorized: false;
-    message?: string;
-  };
-};
-
 export type ErrorResponse = {
   message: string;
-};
-
-export type RegistrationResponse = RegistrationResponseSuccess | RegistrationResponseFailure;
-export type RegistrationResponseSuccess = {
-  data: {
-    success: true;
-    accessToken: string;
-    refreshToken: string;
-  };
-};
-export type RegistrationResponseFailure = {
-  data: {
-    success: false;
-    message: string;
-  };
 };
 
 export type RefreshTokenResponse = RefreshTokenResponseSuccess | RefreshTokenResponseFailure;
@@ -54,12 +24,23 @@ export type RefreshTokenResponseFailure = {
   };
 };
 
+export type AuthMethod = AuthMethodLocalPassword | AuthMethodMagicLink;
+export type AuthMethodLocalPassword = {
+  type: 'local-password';
+  resetPasswordTokenExpiration?: number;
+  requestResetPassword: (user: User, identifier: string) => Promise<void> | void;
+};
+
+export type AuthMethodMagicLink = {
+  type: 'magic-link';
+  sendLink: (user: User, token: string) => Promise<void>;
+};
+
 export type Config<T extends User = User> = {
   tokenSecret: string;
   tokenAlgorithm: string;
   accessTokenExpiration: number;
   refreshTokenExpiration: number;
-  resetPasswordTokenExpiration: number;
   notSecuredEndpoints: RegExp[];
   securedEndpoints: RegExp[];
   hooks?: {
@@ -70,9 +51,8 @@ export type Config<T extends User = User> = {
     requestResetPassword?: (user: T, identifier: string) => void | Promise<void>;
     doResetPassword?: (user: T) => void | Promise<void>;
   };
+  methods: AuthMethod[];
 };
-
-export type ProvidedConfig = Partial<Config>;
 
 export type CollectionEntityWithUserId = {
   id: string;
@@ -80,36 +60,3 @@ export type CollectionEntityWithUserId = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 };
-
-export type ChangePasswordResponseSuccess = {
-  data: {
-    accessToken: string;
-    refreshToken: string;
-  };
-};
-
-export type RequestResetPasswordRequest = {
-  email: string;
-};
-
-export type DoResetPasswordRequest = {
-  password: string;
-  token: string;
-};
-
-export type DoResetPasswordResponseFailed = {
-  data: {
-    success: false;
-    reason: 'INVALID_TOKEN';
-  };
-};
-
-export type DoResetPasswordResponseSuccess = {
-  data: {
-    success: true;
-    accessToken: string;
-    refreshToken: string;
-  };
-};
-
-export type DoResetPasswordResponse = DoResetPasswordResponseFailed | DoResetPasswordResponseSuccess;

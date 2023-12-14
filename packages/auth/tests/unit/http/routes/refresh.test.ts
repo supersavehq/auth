@@ -3,7 +3,7 @@ import { when } from 'jest-when';
 import { generateTokens } from '../../../../src/auth';
 import { sha256 } from '../../../../src/auth/utils';
 import { getRefreshTokenRepository, getUserRepository } from '../../../../src/db';
-import { refresh } from '../../../../src/http/routes';
+import { refresh } from '../../../../src/http/routes/refresh';
 import type { ErrorResponse, RefreshTokenResponse } from '../../../../src/types';
 import { timeInSeconds } from '../../../../src/utils';
 import { clear } from '../../../mysql';

@@ -1,11 +1,12 @@
 import Debug from 'debug';
 import type { Request, Response } from 'express';
 import type { SuperSave } from 'supersave';
-import { generateTokens, hash } from '../../auth';
-import { checkPassword } from '../../auth';
-import { getRefreshTokenRepository, getUserRepository } from '../../db';
-import type { ChangePasswordResponseSuccess, Config } from '../../types';
-import { timeInSeconds } from '../../utils';
+import { generateTokens, hash } from '../../../../auth';
+import { checkPassword } from '../../../../auth';
+import { getRefreshTokenRepository, getUserRepository } from '../../../../db';
+import type { Config } from '../../../../types';
+import { timeInSeconds } from '../../../../utils';
+import type { ChangePasswordResponseSuccess } from '../../types';
 
 const debug = Debug('supersave:auth:change-password');
 

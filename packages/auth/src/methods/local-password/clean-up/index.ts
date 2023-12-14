@@ -1,6 +1,6 @@
 import type { SuperSave } from 'supersave';
-import { getResetPasswordTokenRepository } from '../db';
-import { timeInSeconds } from '../utils';
+import { timeInSeconds } from '../../../utils';
+import { getResetPasswordTokenRepository } from '../database';
 
 export function cleanUp(superSave: SuperSave) {
   const resetPasswordTokenRepository = getResetPasswordTokenRepository(superSave);

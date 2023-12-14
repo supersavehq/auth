@@ -1,11 +1,11 @@
 /* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
 import supertest from 'supertest';
-import { superSaveAuth } from '../../../..';
-import { getRefreshTokenRepository, getUserRepository } from '../../../../src/db';
-import { clear } from '../../../mysql';
-import { getSuperSave } from '../../../utils/database';
-import { getUser } from '../../../utils/fixtures';
+import { superSaveAuth } from '../../../../../..';
+import { getRefreshTokenRepository, getUserRepository } from '../../../../../../src/db';
+import { clear } from '../../../../../mysql';
+import { getSuperSave } from '../../../../../utils/database';
+import { getUser } from '../../../../../utils/fixtures';
 
 /* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
 let authStop: () => void;
@@ -27,6 +27,7 @@ describe('register', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
       hooks: registrationHook === undefined ? {} : { registration: registrationHook },
     });
     const { router } = auth;
@@ -67,6 +68,7 @@ describe('register', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
       hooks: {
         registration: registrationHook,
       },
@@ -109,6 +111,7 @@ describe('register', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
     const { router } = auth;
     authStop = auth.stop;

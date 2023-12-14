@@ -1,13 +1,19 @@
 import Debug from 'debug';
 import type { Request, Response } from 'express';
 import type { SuperSave } from 'supersave';
-import { generateUniqueIdentifier } from '../../auth';
-import { getResetPasswordTokenRepository, getUserRepository } from '../../db';
-import type { Config } from '../../types';
+import { generateUniqueIdentifier } from '../../../../auth';
+import { getUserRepository } from '../../../../db';
+import type { AuthMethodLocalPassword, Config } from '../../../../types';
+import { getResetPasswordTokenRepository } from '../../database';
 
 const debug = Debug('supersave:auth:request-reset-password');
 
-export const requestResetPassword = (superSave: SuperSave, config: Config) =>
+export const requestResetPassword = (
+  superSave: SuperSave,
+  config: Config,
+  resetPasswordTokenExpiration: number,
+  sendCallback: AuthMethodLocalPassword['requestResetPassword']
+) =>
   async function (req: Request, res: Response): Promise<void> {
     if (!req.body.email) {
       debug('No email field found in request body.');
@@ -42,9 +48,11 @@ export const requestResetPassword = (superSave: SuperSave, config: Config) =>
 
     await resetPasswordTokenRepository.create({
       identifier,
-      expires: Math.round(Date.now() / 1000) + config.resetPasswordTokenExpiration,
+      expires: Math.round(Date.now() / 1000) + resetPasswordTokenExpiration,
       userId: user.id,
     });
+
+    await sendCallback(user, identifier);
 
     if (config.hooks?.requestResetPassword) {
       void config.hooks.requestResetPassword(user, identifier);

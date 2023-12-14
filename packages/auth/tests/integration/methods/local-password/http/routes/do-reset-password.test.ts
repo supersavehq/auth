@@ -1,12 +1,13 @@
 /* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
 import supertest from 'supertest';
-import { DoResetPasswordRequest, superSaveAuth } from '../../../..';
-import { hash } from '../../../../src/auth/hash';
-import { getResetPasswordTokenRepository, getUserRepository } from '../../../../src/db';
-import { clear } from '../../../mysql';
-import { getSuperSave } from '../../../utils/database';
-import { getUser } from '../../../utils/fixtures';
+import { DoResetPasswordRequest, superSaveAuth } from '../../../../../..';
+import { hash } from '../../../../../../src/auth/hash';
+import { getUserRepository } from '../../../../../../src/db';
+import { getResetPasswordTokenRepository } from '../../../../../../src/methods/local-password/database';
+import { clear } from '../../../../../mysql';
+import { getSuperSave } from '../../../../../utils/database';
+import { getUser } from '../../../../../utils/fixtures';
 
 /* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
 let authStop: () => void;
@@ -31,6 +32,7 @@ describe('do reset password', () => {
 
       const auth = await superSaveAuth(superSave, {
         tokenSecret: 'secure',
+        methods: [{ type: 'local-password', requestResetPassword: () => {} }],
       });
       const { router } = auth;
       authStop = auth.stop;
@@ -49,6 +51,7 @@ describe('do reset password', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
     const { router } = auth;
     authStop = auth.stop;
@@ -81,6 +84,7 @@ describe('do reset password', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
       hooks:
         doResetPasswordHook === undefined
           ? {
@@ -168,6 +172,7 @@ describe('do reset password', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
+      methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     });
     const { router } = auth;
     authStop = auth.stop;

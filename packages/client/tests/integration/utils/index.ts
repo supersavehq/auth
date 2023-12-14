@@ -21,7 +21,7 @@ export async function getServer() {
   app.use(express.json());
   const { router, addCollection, stop } = await superSaveAuth(superSave, {
     tokenSecret: 'unit-test-secret',
-    accessTokenExpiration: 300,
+    methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     hooks: {
       requestResetPassword: (_user, identifier) => {
         resetToken = identifier;

@@ -1,10 +1,12 @@
 import Debug from 'debug';
 import type { Request, Response } from 'express';
 import type { SuperSave } from 'supersave';
-import { generateTokens, hash } from '../../auth';
-import { getRefreshTokenRepository, getResetPasswordTokenRepository, getUserRepository } from '../../db';
-import type { Config, DoResetPasswordResponse } from '../../types';
-import { timeInSeconds } from '../../utils';
+import { generateTokens, hash } from '../../../../auth';
+import { getRefreshTokenRepository, getUserRepository } from '../../../../db';
+import type { Config } from '../../../../types';
+import { timeInSeconds } from '../../../../utils';
+import { getResetPasswordTokenRepository } from '../../database';
+import type { DoResetPasswordResponse } from '../../types';
 
 const debug = Debug('supersave:auth:do-reset-password');
 
