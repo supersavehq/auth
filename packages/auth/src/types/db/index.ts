@@ -13,6 +13,8 @@ export type RefreshToken = {
   id: string;
   userId: string;
   expiresAt: number;
+  tokenHash: string;
+  tokenSalt: string;
 };
 
 export type ResetPasswordToken = {

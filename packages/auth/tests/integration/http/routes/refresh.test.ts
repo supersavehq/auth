@@ -2,11 +2,9 @@
 import express from 'express';
 import supertest from 'supertest';
 import { superSaveAuth } from '../../../..';
-import { getRefreshTokenRepository, getUserRepository } from '../../../../src/db';
-import { timeInSeconds } from '../../../../src/utils';
+import { getRefreshTokenRepository } from '../../../../src/db';
 import { clear } from '../../../mysql';
 import { getSuperSave } from '../../../utils/database';
-import { getUser } from '../../../utils/fixtures';
 
 /* supersave-auth uses a  timer to clean up records, so it must be explicitly stopped after each test. */
 let authStop: () => void;
@@ -20,16 +18,7 @@ describe('refresh', () => {
   it.each([undefined, jest.fn()])('returns a new accessToken', async (refreshHook) => {
     const superSave = await getSuperSave();
 
-    const userRepository = getUserRepository(superSave);
-    const user = await userRepository.create(getUser());
-
     const refreshTokenRepository = getRefreshTokenRepository(superSave);
-    await refreshTokenRepository.create({
-      // @ts-expect-error The create interface does not allowed id to be specified, but it does work.
-      id: 'secure-token-id',
-      userId: user.id,
-      expiresAt: timeInSeconds() + 99_999,
-    });
 
     const app = express();
     app.use(express.json());
@@ -43,7 +32,18 @@ describe('refresh', () => {
 
     app.use('/auth', router);
 
-    const request = { token: 'secure-token-id' };
+    // First make a user exists
+    const registerRequest = {
+      email: `refresh-test-${refreshHook ? 'withhook' : 'nohook'}@example.com`,
+      password: 'fastpass',
+    };
+    const registerResponse = await supertest(app)
+      .post('/auth/register')
+      .send(registerRequest)
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    const request = { token: registerResponse.body.data.refreshToken };
 
     const response = await supertest(app)
       .post('/auth/refresh')
@@ -53,9 +53,15 @@ describe('refresh', () => {
 
     expect(response.body.data.success).toBe(true);
     expect(response.body.data.accessToken).toBeDefined();
+    expect(response.body.data.refreshToken).toBeDefined();
     if (refreshHook !== undefined) {
-      expect(refreshHook).toBeCalledWith(user);
+      expect(refreshHook).toBeCalled();
     }
+
+    // Check that the 'old' token is removed
+    const oldTokenId = registerResponse.body.data.refreshToken.split('_')[0];
+    const oldToken = await refreshTokenRepository.getById(oldTokenId);
+    expect(oldToken).toBeNull();
   });
 
   it('fails when refresh token is not found', async () => {
@@ -72,7 +78,7 @@ describe('refresh', () => {
 
     app.use('/auth', router);
 
-    const request = { token: 'secure-token-id' };
+    const request = { token: 'secure-token-id_aaa' };
 
     const response = await supertest(app)
       .post('/auth/refresh')
