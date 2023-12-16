@@ -4,7 +4,7 @@ import type { SuperSave } from 'supersave';
 import { generateTokens, hash } from '../../../../auth';
 import { getUserRepository } from '../../../../db';
 import type { Config, User } from '../../../../types';
-import { timeInSeconds } from '../../../../utils';
+import { anonymizeEmail, timeInSeconds } from '../../../../utils';
 import type { RegistrationResponse } from '../../types';
 
 const debug = Debug('supersave:auth:register');
@@ -21,15 +21,15 @@ export const register = (superSave: SuperSave, config: Config) =>
     }
 
     const { email, password, name }: { email: string; password: string; name?: string } = req.body;
-    debug('Registration attempt for %s, %s.', email, name);
+    debug('Registration attempt for %s, %s.', anonymizeEmail(email), name);
 
     const users = await repository.getByQuery(repository.createQuery().eq('email', email).limit(1));
     if (users.length > 0) {
-      debug('User found with email %s, cannot register.', email);
+      debug('User found with email %s, cannot register.', anonymizeEmail(email));
       const response: RegistrationResponse = {
         data: {
           success: false,
-          message: 'The emailaddress is already taken. Did you mean to login?',
+          message: 'The emailaddress is already in use. Did you mean to login?',
         },
       };
       res.json(response);

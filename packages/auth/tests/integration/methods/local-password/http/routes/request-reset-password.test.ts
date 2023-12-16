@@ -73,7 +73,7 @@ describe('request reset password', () => {
     };
 
     await supertest(app).post('/auth/reset-password').send(request).expect(201);
-    expect(sendCallback).toBeCalledWith(user, expect.anything());
+    expect(sendCallback).toBeCalledWith(user, expect.anything(), expect.anything());
 
     if (requestResetPasswordHook !== undefined) {
       expect(requestResetPasswordHook).toBeCalled();

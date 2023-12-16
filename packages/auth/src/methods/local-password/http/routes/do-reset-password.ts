@@ -26,7 +26,7 @@ export const doResetPassword = (superSave: SuperSave, config: Config) =>
       resetPasswordTokenRepository.createQuery().eq('identifier', token)
     );
 
-    if (databaseResetToken === null || databaseResetToken.expires < Math.floor(Date.now() / 1000)) {
+    if (databaseResetToken === null || databaseResetToken.expires < new Date().toISOString()) {
       debug('Reset token not found in the database, or it has already expired.');
       const response: DoResetPasswordResponse = {
         data: {

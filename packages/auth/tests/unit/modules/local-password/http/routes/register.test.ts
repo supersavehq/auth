@@ -62,7 +62,7 @@ describe('register', () => {
     const expectedResponse: RegistrationResponse = {
       data: {
         success: false,
-        message: 'The emailaddress is already taken. Did you mean to login?',
+        message: 'The emailaddress is already in use. Did you mean to login?',
       },
     };
     expect(jsonMock).toHaveBeenCalledWith(expectedResponse);

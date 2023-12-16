@@ -20,10 +20,12 @@ export type Client = {
   changePassword: (request: ChangePasswordRequest) => Promise<ChangePasswordResponse>;
   requestResetPassword: (request: RequestResetPasswordRequest) => Promise<void>;
   doResetPassword: (request: DoResetPasswordRequest) => Promise<DoResetPasswordResponse>;
+  requestMagicLogin: (request: RequestMagicLoginRequest) => Promise<void>;
+  magicLogin: (request: MagicLoginRequest) => Promise<MagicLoginResponse['data']>;
 };
 
 /** HTTP response types */
-/** These are partially copied from https://github.com/supersavehq/auth/blob/main/src/types/index.ts */
+/** These are manually copied from https://github.com/supersavehq/auth/blob/main/src/types/index.ts */
 
 type HttpDataResponse<T> = { data: T };
 
@@ -128,3 +130,25 @@ export type DoResetPasswordResponseSuccess = {
 
 export type DoResetPasswordResponse = DoResetPasswordResponseFailed | DoResetPasswordResponseSuccess;
 export type DoResetPasswordDataResponse = HttpDataResponse<DoResetPasswordResponse>;
+
+export type RequestMagicLoginRequest = {
+  email: string;
+};
+export type MagicLoginRequest = {
+  identifier: string;
+};
+
+export type MagicLoginResponse = MagicLoginResponseSuccess | MagicLoginResponseFailure;
+export type MagicLoginResponseSuccess = {
+  data: {
+    authorized: true;
+    accessToken: string;
+    refreshToken: string;
+  };
+};
+export type MagicLoginResponseFailure = {
+  data: {
+    authorized: false;
+    message?: string;
+  };
+};

@@ -217,3 +217,32 @@ describe('refresh', () => {
     });
   });
 });
+
+describe('request-magic-login', () => {
+  test('successful', async () => {
+    const serverInfo = await serverInfoPromise;
+    const client = initialize({ baseUrl: serverInfo.prefix, requester });
+
+    await client.requestMagicLogin({
+      email: EMAIL,
+    });
+    expect(serverInfo.getMagicLinkIdentifier()).toBeDefined();
+  });
+});
+
+describe('magic-login', () => {
+  test('successful', async () => {
+    const serverInfo = await serverInfoPromise;
+    const client = initialize({ baseUrl: serverInfo.prefix, requester });
+
+    const response = await client.magicLogin({
+      identifier: serverInfo.getMagicLinkIdentifier(),
+    });
+    expect(response.authorized).toBe(true);
+    if (response.authorized) {
+      // the if is so that typescript understands it is the success response
+      expect(response.accessToken).toBeDefined();
+      expect(response.refreshToken).toBeDefined();
+    }
+  });
+});

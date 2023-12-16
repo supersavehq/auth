@@ -39,18 +39,18 @@ export const refresh = (superSave: SuperSave, config: Config) =>
       return;
     }
 
-    const now = timeInSeconds();
-    if (databaseToken.expiresAt < now) {
-      debug('Used Refresh token for user %s is expired.', databaseToken.userId);
+    // Validate the hash
+    const tokenHash = sha256(`${databaseToken.tokenSalt}${HASH_SEPARATOR}${tokenValue}`);
+    if (tokenHash !== databaseToken.tokenHash) {
+      debug('Refresh token hash does not match. %s !== %s', tokenHash, databaseToken.tokenHash);
       const response: RefreshTokenResponse = { data: { success: false } };
       res.status(401).json(response);
       return;
     }
 
-    // Validate the hash
-    const tokenHash = sha256(`${databaseToken.tokenSalt}${HASH_SEPARATOR}${tokenValue}`);
-    if (tokenHash !== databaseToken.tokenHash) {
-      debug('Refresh token hash does not match. %s !== %s', tokenHash, databaseToken.tokenHash);
+    const now = new Date();
+    if (databaseToken.expiresAt < now.toISOString()) {
+      debug('Used Refresh token for user %s is expired.', databaseToken.userId);
       const response: RefreshTokenResponse = { data: { success: false } };
       res.status(401).json(response);
       return;

@@ -16,17 +16,26 @@ export async function getServer() {
   const superSave = await SuperSave.create('sqlite://:memory:');
 
   let resetToken = '';
+  let magicLinkIdentifier = '';
 
   const app = express();
   app.use(express.json());
   const { router, addCollection, stop } = await superSaveAuth(superSave, {
     tokenSecret: 'unit-test-secret',
-    methods: [{ type: 'local-password', requestResetPassword: () => {} }],
-    hooks: {
-      requestResetPassword: (_user, identifier) => {
-        resetToken = identifier;
+    methods: [
+      {
+        type: 'local-password',
+        requestResetPassword: (_user, identifier) => {
+          resetToken = identifier;
+        },
       },
-    },
+      {
+        type: 'magic-link',
+        sendMagicIdentifier(_user, identifier) {
+          magicLinkIdentifier = identifier;
+        },
+      },
+    ],
   });
 
   app.use('/auth', router);
@@ -48,5 +57,6 @@ export async function getServer() {
       });
     },
     getResetToken: () => resetToken,
+    getMagicLinkIdentifier: () => magicLinkIdentifier,
   };
 }

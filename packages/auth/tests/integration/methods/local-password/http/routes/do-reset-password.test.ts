@@ -189,7 +189,7 @@ describe('do reset password', () => {
     await resetPasswordTokenRepository.create({
       userId: user.id,
       identifier: TOKEN,
-      expires: Math.floor(new Date('2020-01-01 00:00:00').getTime() / 1000),
+      expires: new Date('2020-01-01 00:00:00').toISOString(),
     });
 
     const request: DoResetPasswordRequest = {
