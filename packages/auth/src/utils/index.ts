@@ -27,3 +27,27 @@ export function isEndpointSecured(config: Config, path: string): boolean {
   }
   return !matchMeansSecured; // no match means the opposite
 }
+
+export function isEmailAddress(email: string): boolean {
+  const MAX_EMAIL_LENGTH = 254; // Maximum length of an email address is 254 characters
+  if (email.length > MAX_EMAIL_LENGTH) {
+    return false;
+  }
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export function anonymizeString(input: string, fallback: string = 'xxx', visibleLength: number = 1): string {
+  return input.length < visibleLength * 2
+    ? input[0] + '*'.repeat(input.length - visibleLength * 2) + input.at(-visibleLength)
+    : fallback;
+}
+
+export function anonymizeEmail(email: string): string {
+  const parts = email.split('@');
+  if (!parts[0] || !parts[1]) {
+    return 'anonymized@email';
+  }
+
+  const [localPart, domain] = parts;
+  return `${anonymizeString(localPart)}@${domain}`;
+}

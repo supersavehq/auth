@@ -1,3 +1,4 @@
+import add from 'date-fns/add';
 import type { Request, Response } from 'express';
 import { when } from 'jest-when';
 import { generateTokens } from '../../../../src/auth';
@@ -5,7 +6,6 @@ import { sha256 } from '../../../../src/auth/utils';
 import { getRefreshTokenRepository, getUserRepository } from '../../../../src/db';
 import { refresh } from '../../../../src/http/routes/refresh';
 import type { ErrorResponse, RefreshTokenResponse } from '../../../../src/types';
-import { timeInSeconds } from '../../../../src/utils';
 import { clear } from '../../../mysql';
 import { getConfig } from '../../../utils/config';
 import { getSuperSave } from '../../../utils/database';
@@ -81,7 +81,7 @@ describe('refresh', () => {
       // @ts-expect-error The create interface does not allowed id to be specified, but it does work.
       id: 'secure-token-id',
       userId: 'userA',
-      expiresAt: 15,
+      expiresAt: new Date('2000-01-17 00:00:00').toISOString(),
       tokenHash: 'xxx',
       tokenSalt: 'yyy',
     });
@@ -118,7 +118,7 @@ describe('refresh', () => {
       // @ts-expect-error The create interface does not allowed id to be specified, but it does work.
       id: 'secure-token-id',
       userId: 'userA',
-      expiresAt: timeInSeconds() + 99_999,
+      expiresAt: add(new Date(), { seconds: 99_999 }).toISOString(),
       tokenHash: 'xxx',
       tokenSalt: 'yyy',
     });
@@ -158,7 +158,7 @@ describe('refresh', () => {
       // @ts-expect-error The create interface does not allowed id to be specified, but it does work.
       id: 'secure-token-id',
       userId: 'userA',
-      expiresAt: timeInSeconds() + 99_999,
+      expiresAt: add(new Date(), { seconds: 99_999 }).toISOString(),
       tokenHash: 'xxx',
       tokenSalt: 'yyy',
     });
@@ -204,7 +204,7 @@ describe('refresh', () => {
       // @ts-expect-error The create interface does not allowed id to be specified, but it does work.
       id: 'secure-token-id',
       userId: user.id,
-      expiresAt: timeInSeconds() + 99_999,
+      expiresAt: add(new Date(), { seconds: 99_999 }).toISOString(),
     });
 
     const request = { body: { token: 'secure-token-id_aaa' } };

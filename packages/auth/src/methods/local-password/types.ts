@@ -1,7 +1,7 @@
 export type ResetPasswordToken = {
   id: string;
   identifier: string;
-  expires: number;
+  expires: string;
   userId: string;
 };
 

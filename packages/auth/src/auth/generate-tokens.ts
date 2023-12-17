@@ -6,7 +6,6 @@ import { getRefreshTokenRepository } from '../db';
 import type { User } from '../types';
 import type { Config, Tokens } from '../types';
 import type { RefreshToken } from '../types/db';
-import { timeInSeconds } from '../utils';
 
 export const HASH_SEPARATOR = '_';
 export const TOKEN_SEPARATOR = '_';
@@ -33,7 +32,7 @@ export async function generateTokens(
 
   const databaseToken = await refreshTokenRepository.create({
     userId: user.id,
-    expiresAt: timeInSeconds(expiresAt),
+    expiresAt: expiresAt.toISOString(),
     tokenHash,
     tokenSalt: shortenedSalt,
   });

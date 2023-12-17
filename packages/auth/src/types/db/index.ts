@@ -12,7 +12,7 @@ export type User = {
 export type RefreshToken = {
   id: string;
   userId: string;
-  expiresAt: number;
+  expiresAt: string;
   tokenHash: string;
   tokenSalt: string;
 };

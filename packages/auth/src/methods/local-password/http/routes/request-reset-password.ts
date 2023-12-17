@@ -1,9 +1,11 @@
+import add from 'date-fns/add';
 import Debug from 'debug';
 import type { Request, Response } from 'express';
 import type { SuperSave } from 'supersave';
 import { generateUniqueIdentifier } from '../../../../auth';
 import { getUserRepository } from '../../../../db';
 import type { AuthMethodLocalPassword, Config } from '../../../../types';
+import { anonymizeEmail } from '../../../../utils';
 import { getResetPasswordTokenRepository } from '../../database';
 
 const debug = Debug('supersave:auth:request-reset-password');
@@ -27,7 +29,7 @@ export const requestResetPassword = (
     const userRepository = getUserRepository(superSave);
     const user = await userRepository.getOneByQuery(userRepository.createQuery().eq('email', email));
     if (user === null) {
-      debug('User with email %s not found in database', email);
+      debug('User with email %s not found in database', anonymizeEmail(email));
       // Don't expose via the response whether or not the user exists in the database.
       res.status(201).send();
       return;
@@ -46,16 +48,17 @@ export const requestResetPassword = (
       await resetPasswordTokenRepository.deleteUsingId(existingToken.id);
     }
 
+    const expires = add(new Date(), { seconds: resetPasswordTokenExpiration });
     await resetPasswordTokenRepository.create({
       identifier,
-      expires: Math.round(Date.now() / 1000) + resetPasswordTokenExpiration,
+      expires: expires.toISOString(),
       userId: user.id,
     });
 
-    await sendCallback(user, identifier);
+    await sendCallback(user, identifier, expires);
 
     if (config.hooks?.requestResetPassword) {
-      void config.hooks.requestResetPassword(user, identifier);
+      void config.hooks.requestResetPassword(user, identifier, expires);
     }
 
     res.status(201).send();
