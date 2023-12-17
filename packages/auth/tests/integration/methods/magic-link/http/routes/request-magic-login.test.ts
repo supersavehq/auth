@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
 import supertest from 'supertest';
-import { Config, RequestMagicLoginRequest, superSaveAuth } from '../../../../../../build';
+import { PartialConfig, RequestMagicLoginRequest, superSaveAuth } from '../../../../../..';
 import { getUserRepository } from '../../../../../../src/db';
 import { clear } from '../../../../../mysql';
 import { getSuperSave } from '../../../../../utils/database';
@@ -78,7 +78,7 @@ describe('request magic login', () => {
 
     const sendMagicIdentifier = jest.fn();
 
-    const config: Partial<Config> = {
+    const config: PartialConfig = {
       tokenSecret: 'secure',
       methods: [{ type: 'magic-link', sendMagicIdentifier }],
     };

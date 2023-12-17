@@ -1,3 +1,4 @@
+import type { Request } from 'express';
 import type { User } from './db';
 export { User } from './db';
 
@@ -37,6 +38,14 @@ export type AuthMethodMagicLink = {
   magicLoginExpiration?: number;
 };
 
+export type RateLimit = {
+  windowMs: number;
+  max: number;
+  keyGenerator?: (req: Request) => string | Promise<string>;
+};
+
+export type PartialConfig = Partial<Omit<Config, 'tokenSecret'>> & { tokenSecret: Config['tokenSecret'] };
+
 export type Config<T extends User = User> = {
   tokenSecret: string;
   tokenAlgorithm: string;
@@ -55,6 +64,12 @@ export type Config<T extends User = User> = {
     magicLink?: (user: T) => void | Promise<void>;
   };
   methods: AuthMethod[];
+  rateLimit:
+    | false
+    | {
+        general: RateLimit;
+        identifier: RateLimit;
+      };
 };
 
 export type CollectionEntityWithUserId = {
