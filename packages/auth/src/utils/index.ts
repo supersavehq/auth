@@ -37,9 +37,11 @@ export function isEmailAddress(email: string): boolean {
 }
 
 export function anonymizeString(input: string, fallback: string = 'xxx', visibleLength: number = 1): string {
-  return input.length < visibleLength * 2
-    ? input[0] + '*'.repeat(input.length - visibleLength * 2) + input.at(-visibleLength)
-    : fallback;
+  return input.length <= visibleLength * 2
+    ? fallback
+    : input.slice(0, visibleLength) +
+        '*'.repeat(input.length - visibleLength * 2) +
+        input.slice(input.length - visibleLength);
 }
 
 export function anonymizeEmail(email: string): string {
