@@ -1,14 +1,9 @@
-import type {
-  ChangePasswordDataResponse,
-  ChangePasswordRequest,
-  ChangePasswordResponse,
-  ChangePasswordResponseSuccess,
-  Requester,
-} from '../types';
+import { ChangePasswordError } from '../errors';
+import type { ChangePasswordDataResponse, ChangePasswordRequest, Requester, TokenResponse } from '../types';
 
 export const changePassword =
   (baseUrl: string, requester: Requester) =>
-  async (request: ChangePasswordRequest): Promise<ChangePasswordResponse> => {
+  async (request: ChangePasswordRequest): Promise<TokenResponse> => {
     const httpRequest = {
       email: request.email,
       newPassword: request.newPassword,
@@ -24,17 +19,15 @@ export const changePassword =
     );
 
     if (rsp.statusCode === 400) {
-      return { success: false, reason: 'INVALID_PASSWORD' };
+      throw new ChangePasswordError('INVALID_PASSWORD');
     } else if (rsp.statusCode === 401) {
-      return { success: false, reason: 'INVALID_TOKEN' };
-    } else if (rsp.statusCode !== 200) {
-      return { success: false, reason: 'UNKNOWN' };
+      throw new ChangePasswordError('INVALID_TOKEN');
+    } else if (rsp.statusCode !== 200 || rsp.data.data.success === false) {
+      throw new ChangePasswordError('UNKNOWN');
     }
 
-    const successResponse = rsp.data.data as unknown as ChangePasswordResponseSuccess;
-
     return {
-      ...successResponse,
-      success: true,
+      accessToken: rsp.data.data.accessToken,
+      refreshToken: rsp.data.data.refreshToken,
     };
   };

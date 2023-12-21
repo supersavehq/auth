@@ -1,15 +1,19 @@
-import type { RefreshDataResponse, RefreshRequest, RefreshResponse, Requester } from '../types';
+import { RefreshError } from '../errors';
+import type { RefreshDataResponse, RefreshRequest, Requester, TokenResponse } from '../types';
 
 export const refresh =
   (prefix: string, requester: Requester) =>
-  async (request: RefreshRequest): Promise<RefreshResponse> => {
+  async (request: RefreshRequest): Promise<TokenResponse> => {
     const rsp = await requester.post<RefreshDataResponse, RefreshRequest>(`${prefix}/refresh`, request);
 
-    const { data } = rsp.data;
-    if (rsp.statusCode === 200) {
-      return data;
+    if (rsp.statusCode !== 200 || rsp.data.data.success === false) {
+      throw new RefreshError('Unable to refresh token.');
     }
+
+    const { data } = rsp.data;
+
     return {
-      success: false,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
     };
   };

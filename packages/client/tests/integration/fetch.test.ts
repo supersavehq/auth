@@ -30,7 +30,8 @@ describe('fetch - register/login/change-password', () => {
         password: PASSWORD,
       });
 
-      expect(response.success).toBe(true);
+      expect(response.accessToken).toBeDefined();
+      expect(response.refreshToken).toBeDefined();
     });
   });
 
@@ -42,10 +43,7 @@ describe('fetch - register/login/change-password', () => {
       const client = initialize({ baseUrl: serverInfo.prefix });
 
       const result = await client.login({ email: EMAIL, password: PASSWORD });
-      expect(result.authorized).toBe(true);
-      if (result.authorized) {
-        accessToken = result.accessToken;
-      }
+      accessToken = result.accessToken;
     });
 
     toInvoke('change-password', async () => {
@@ -58,7 +56,7 @@ describe('fetch - register/login/change-password', () => {
         password: PASSWORD,
         newPassword: `${PASSWORD}2`,
       });
-      expect(result.success).toBe(true);
+      expect(result.accessToken).toBeDefined();
     });
   });
 });

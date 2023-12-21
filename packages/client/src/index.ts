@@ -6,23 +6,17 @@ export {
   HttpResponse,
   Options,
   LoginRequest,
-  LoginResponse,
   RefreshRequest,
-  RefreshResponse,
   RegistrationRequest,
-  RegistrationResponse,
   Client,
   ChangePasswordRequest,
-  ChangePasswordResponse,
+  TokenResponse,
   DoResetPasswordRequest,
-  DoResetPasswordResponse,
   RequestResetPasswordRequest,
   MagicLoginRequest,
-  MagicLoginResponse,
-  MagicLoginResponseFailure,
-  MagicLoginResponseSuccess,
-  RequestMagicLoginRequest as RequestMagicLinkRequest,
+  RequestMagicLoginRequest,
 } from './types';
+export * from './errors';
 
 export function initialize(options: Options): Client {
   const requester = getRequester(options);

@@ -14,14 +14,14 @@ export type Options = {
 };
 
 export type Client = {
-  login: (request: LoginRequest) => Promise<LoginResponse>;
-  register: (request: RegistrationRequest) => Promise<RegistrationResponse>;
-  refresh: (request: RefreshRequest) => Promise<RefreshResponse>;
-  changePassword: (request: ChangePasswordRequest) => Promise<ChangePasswordResponse>;
+  login: (request: LoginRequest) => Promise<TokenResponse>;
+  register: (request: RegistrationRequest) => Promise<TokenResponse>;
+  refresh: (request: RefreshRequest) => Promise<TokenResponse>;
+  changePassword: (request: ChangePasswordRequest) => Promise<TokenResponse>;
   requestResetPassword: (request: RequestResetPasswordRequest) => Promise<void>;
-  doResetPassword: (request: DoResetPasswordRequest) => Promise<DoResetPasswordResponse>;
+  doResetPassword: (request: DoResetPasswordRequest) => Promise<TokenResponse>;
   requestMagicLogin: (request: RequestMagicLoginRequest) => Promise<void>;
-  magicLogin: (request: MagicLoginRequest) => Promise<MagicLoginResponse['data']>;
+  magicLogin: (request: MagicLoginRequest) => Promise<TokenResponse>;
 };
 
 /** HTTP response types */
@@ -82,6 +82,7 @@ export type RefreshRequest = {
 export type RefreshResponseSuccess = {
   success: true;
   accessToken: string;
+  refreshToken: string;
 };
 export type RefreshResponseFailed = {
   success: false;
@@ -96,6 +97,11 @@ export type ChangePasswordRequest = {
   newPassword: string;
 };
 
+export type TokenResponse = {
+  accessToken: string;
+  refreshToken: string;
+};
+
 export type ChangePasswordResponseSuccess = {
   success: true;
   accessToken: string;
@@ -105,8 +111,8 @@ export type ChangePasswordResponseFailure = {
   success: false;
   reason: 'INVALID_PASSWORD' | 'UNKNOWN' | 'INVALID_TOKEN';
 };
-export type ChangePasswordResponse = ChangePasswordResponseSuccess | ChangePasswordResponseFailure;
-export type ChangePasswordDataResponse = HttpDataResponse<ChangePasswordResponse>;
+export type ChangePasswordApiResponse = ChangePasswordResponseSuccess | ChangePasswordResponseFailure;
+export type ChangePasswordDataResponse = HttpDataResponse<ChangePasswordApiResponse>;
 
 export type RequestResetPasswordRequest = {
   email: string;
@@ -128,8 +134,8 @@ export type DoResetPasswordResponseSuccess = {
   refreshToken: string;
 };
 
-export type DoResetPasswordResponse = DoResetPasswordResponseFailed | DoResetPasswordResponseSuccess;
-export type DoResetPasswordDataResponse = HttpDataResponse<DoResetPasswordResponse>;
+export type DoResetPasswordApiResponse = DoResetPasswordResponseFailed | DoResetPasswordResponseSuccess;
+export type DoResetPasswordDataResponse = HttpDataResponse<DoResetPasswordApiResponse>;
 
 export type RequestMagicLoginRequest = {
   email: string;

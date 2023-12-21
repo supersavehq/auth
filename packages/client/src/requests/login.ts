@@ -1,16 +1,21 @@
-import type { LoginDataResponse, LoginRequest, LoginResponse, Requester } from '../types';
+import { LoginError } from '../errors';
+import type { LoginDataResponse, LoginRequest, Requester, TokenResponse } from '../types';
 
 export const login =
   (baseUrl: string, requester: Requester) =>
-  async (request: LoginRequest): Promise<LoginResponse> => {
+  async (request: LoginRequest): Promise<TokenResponse> => {
     const rsp = await requester.post<LoginDataResponse, LoginRequest>(`${baseUrl}/login`, request);
 
-    const { data } = rsp.data;
     if (rsp.statusCode === 200) {
-      return data;
+      const { data } = rsp.data;
+      if (!data.authorized) {
+        throw new LoginError('Unauthorized.');
+      }
+      return {
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+      };
     }
 
-    return {
-      authorized: false,
-    };
+    throw new LoginError('Failed to login in.');
   };

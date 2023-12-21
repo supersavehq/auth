@@ -1,16 +1,19 @@
-import type { RegistrationDataResponse, RegistrationRequest, RegistrationResponse, Requester } from '../types';
+import { RegistrationError } from '../errors';
+import type { RegistrationDataResponse, RegistrationRequest, Requester, TokenResponse } from '../types';
 
 export const register =
   (baseUrl: string, requester: Requester) =>
-  async (request: RegistrationRequest): Promise<RegistrationResponse> => {
+  async (request: RegistrationRequest): Promise<TokenResponse> => {
     const rsp = await requester.post<RegistrationDataResponse, RegistrationRequest>(`${baseUrl}/register`, request);
 
-    const { data } = rsp.data;
-    if (rsp.statusCode === 200) {
-      return data;
+    if (rsp.statusCode !== 200 || !rsp.data.data.success) {
+      throw new RegistrationError('Registration failed.');
     }
+
+    const { data } = rsp.data;
+
     return {
-      success: false,
-      message: 'Unsuccesful request.',
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
     };
   };
