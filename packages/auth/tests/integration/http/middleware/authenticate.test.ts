@@ -2,7 +2,7 @@
 /* eslint-disable unicorn/consistent-destructuring */
 import express from 'express';
 import supertest from 'supertest';
-import { Config, superSaveAuth } from '../../../..';
+import { PartialConfig, superSaveAuth } from '../../../..';
 import { hash } from '../../../../src/auth/hash';
 import { getUserRepository } from '../../../../src/db';
 import { clear } from '../../../mysql';
@@ -105,7 +105,7 @@ describe('authenticate', () => {
 });
 
 describe('it allows not secured endpoints', () => {
-  const config: Partial<Config> = {
+  const config: PartialConfig = {
     tokenSecret: 'secure',
     methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     notSecuredEndpoints: [/^\/hello/],
@@ -149,7 +149,7 @@ describe('it allows not secured endpoints', () => {
 });
 
 describe('it only secures configured endpoints', () => {
-  const config: Partial<Config> = {
+  const config: PartialConfig = {
     tokenSecret: 'secure',
     methods: [{ type: 'local-password', requestResetPassword: () => {} }],
     securedEndpoints: [/^\/auth\/.*/],

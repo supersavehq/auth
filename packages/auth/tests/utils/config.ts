@@ -8,6 +8,7 @@ const DEFAULT_CONFIG: Config = {
   notSecuredEndpoints: [],
   securedEndpoints: [],
   methods: [{ type: 'local-password', requestResetPassword: () => {} }],
+  rateLimit: false,
 };
 
 export function getConfig(config: Partial<Config> = {}): Config {

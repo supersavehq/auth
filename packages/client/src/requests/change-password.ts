@@ -28,7 +28,6 @@ export const changePassword =
     } else if (rsp.statusCode === 401) {
       return { success: false, reason: 'INVALID_TOKEN' };
     } else if (rsp.statusCode !== 200) {
-      console.log('@@', rsp);
       return { success: false, reason: 'UNKNOWN' };
     }
 

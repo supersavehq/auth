@@ -21,6 +21,7 @@ describe('generateTokens', () => {
       notSecuredEndpoints: [],
       securedEndpoints: [],
       methods: [{ type: 'local-password', requestResetPassword: () => {} }],
+      rateLimit: false,
     };
 
     const tokens = await generateTokens(

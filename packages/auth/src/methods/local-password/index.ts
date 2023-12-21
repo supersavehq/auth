@@ -9,6 +9,7 @@ import { login } from './http/routes/login';
 import { register } from './http/routes/register';
 import { requestResetPassword } from './http/routes/request-reset-password';
 import { authenticate } from '../../http/middleware';
+import { rateLimit } from '../../http/rate-limit';
 import { asyncCatch } from '../../http/utils';
 import type { AuthMethodLocalPassword, Config } from '../../types';
 
@@ -22,11 +23,17 @@ export async function initialize(
 ): Promise<() => void> {
   await initializeDatabase(superSave);
 
-  router.post('/login', asyncCatch(login(superSave, config)));
-  router.post('/register', asyncCatch(register(superSave, config)));
-  router.post('/change-password', authenticate(config), asyncCatch(changePassword(superSave, config)));
+  router.post('/login', rateLimit(config.rateLimit, 'identifier'), asyncCatch(login(superSave, config)));
+  router.post('/register', rateLimit(config.rateLimit, 'identifier'), asyncCatch(register(superSave, config)));
+  router.post(
+    '/change-password',
+    rateLimit(config.rateLimit, 'identifier'),
+    authenticate(config),
+    asyncCatch(changePassword(superSave, config))
+  );
   router.post(
     '/reset-password',
+    rateLimit(config.rateLimit, 'identifier'),
     asyncCatch(
       requestResetPassword(
         superSave,
@@ -36,7 +43,11 @@ export async function initialize(
       )
     )
   );
-  router.post('/do-reset-password', asyncCatch(doResetPassword(superSave, config)));
+  router.post(
+    '/do-reset-password',
+    rateLimit(config.rateLimit, 'identifier'),
+    asyncCatch(doResetPassword(superSave, config))
+  );
 
   return cleanUp(superSave);
 }

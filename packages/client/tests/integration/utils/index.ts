@@ -36,6 +36,7 @@ export async function getServer() {
         },
       },
     ],
+    rateLimit: false,
   });
 
   app.use('/auth', router);

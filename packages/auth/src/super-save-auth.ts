@@ -1,14 +1,19 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
+import Debug from 'debug';
 import express from 'express';
+import expressRateLimit from 'express-rate-limit';
 import type { SuperSave } from 'supersave';
 import { verifyAccessToken } from './auth';
 import { initializeDatabase as initializeDatabase } from './db';
 import { addCollection } from './hooks';
 import { authenticate } from './http/middleware';
+import { DEFAULT_LIMIT_GENERAL, DEFAULT_LIMIT_IDENTIFIER, rateLimit } from './http/rate-limit';
 import { refresh } from './http/routes/refresh';
 import { asyncCatch } from './http/utils';
 import { initialize as initializeMethods } from './methods';
-import type { Config } from './types';
+import type { Config, PartialConfig } from './types';
+
+const debug = Debug('supersave:auth:super-save-auth');
 
 const DEFAULT_CONFIG: Config = {
   tokenSecret: '',
@@ -18,9 +23,13 @@ const DEFAULT_CONFIG: Config = {
   notSecuredEndpoints: [],
   securedEndpoints: [],
   methods: [],
+  rateLimit: {
+    general: DEFAULT_LIMIT_GENERAL,
+    identifier: DEFAULT_LIMIT_IDENTIFIER,
+  },
 };
 
-export async function superSaveAuth(superSave: SuperSave, providedConfig: Partial<Config> = {}) {
+export async function superSaveAuth(superSave: SuperSave, providedConfig: PartialConfig) {
   if (!providedConfig.tokenSecret) {
     throw new Error('No token secret is defined.');
   }
@@ -34,12 +43,25 @@ export async function superSaveAuth(superSave: SuperSave, providedConfig: Partia
   const config: Config = {
     ...DEFAULT_CONFIG,
     ...providedConfig,
+    // @ts-expect-error The typing is confused about the rate limits not being set,
+    // While we know that both are always set from the default config.
+    rateLimit:
+      providedConfig.rateLimit === false ? false : { ...DEFAULT_CONFIG.rateLimit, ...providedConfig.rateLimit },
   };
+  // set the identifier rate limit key generator to ours if it is not provided.
+  if (config.rateLimit !== false && config.rateLimit.identifier && !config.rateLimit.identifier.keyGenerator) {
+    // @ts-expect-error The keyGenerator is optional in the typing, but always set in the default config.
+    config.rateLimit.identifier.keyGenerator = DEFAULT_LIMIT_IDENTIFIER.keyGenerator;
+  }
 
   await initializeDatabase(superSave);
 
   const router = express.Router();
-  router.post('/refresh', asyncCatch(refresh(superSave, config)));
+  if (config.rateLimit !== false) {
+    debug('Adding general rate limit to router.');
+    router.use(expressRateLimit(config.rateLimit.general));
+  }
+  router.post('/refresh', rateLimit(config.rateLimit, 'identifier'), asyncCatch(refresh(superSave, config)));
 
   const cleanUps = await initializeMethods(superSave, config, router);
 
