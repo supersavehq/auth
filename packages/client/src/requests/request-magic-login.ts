@@ -1,3 +1,4 @@
+import { RequestMagicLoginError } from '../errors';
 import type { Requester, RequestMagicLoginRequest } from '../types';
 
 export const requestMagicLogin =
@@ -6,6 +7,6 @@ export const requestMagicLogin =
     const rsp = await requester.post<void, RequestMagicLoginRequest>(`${baseUrl}/get-magic-login`, request);
 
     if (rsp.statusCode !== 201) {
-      throw new Error('Could not successfully request a reset password.');
+      throw new RequestMagicLoginError('Could not successfully request a reset password.');
     }
   };

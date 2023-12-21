@@ -1,4 +1,12 @@
-import { initialize } from '../..';
+import {
+  ChangePasswordError,
+  DoResetPasswordError,
+  initialize,
+  LoginError,
+  MagicLoginError,
+  RefreshError,
+  RegistrationError,
+} from '../..';
 import { getServer, requester } from '../../tests/integration/utils';
 
 const EMAIL = 'test@test.com';
@@ -23,18 +31,19 @@ describe('register', () => {
       password: PASSWORD,
     });
 
-    expect(response.success).toBe(true);
+    expect(response.accessToken).toBeDefined();
+    expect(response.refreshToken).toBeDefined();
   });
   test('bad request', async () => {
     const serverInfo = await serverInfoPromise;
     const client = initialize({ baseUrl: serverInfo.prefix, requester });
 
-    const response = await client.register({
-      email: EMAIL,
-      password: '',
-    });
-
-    expect(response.success).toBe(false);
+    await expect(
+      client.register({
+        email: EMAIL,
+        password: '',
+      })
+    ).rejects.toThrow(RegistrationError);
   });
 });
 
@@ -48,12 +57,10 @@ describe('login', () => {
       password: PASSWORD,
     });
 
-    expect(response.authorized).toBe(true);
-    if (response.authorized) {
-      // The if is so that ts understands it is the success response
-      expect(response.accessToken ?? '').toBeDefined();
-    }
+    expect(response.accessToken).toBeDefined();
+    expect(response.refreshToken).toBeDefined();
   });
+
   it.each([
     ['no-success@example.com', PASSWORD],
     [EMAIL, 'invalid-password'],
@@ -61,12 +68,12 @@ describe('login', () => {
     const serverInfo = await serverInfoPromise;
     const client = initialize({ baseUrl: serverInfo.prefix, requester });
 
-    const response = await client.login({
-      email,
-      password,
-    });
-
-    expect(response.authorized).toBe(false);
+    await expect(
+      client.login({
+        email,
+        password,
+      })
+    ).rejects.toThrow(LoginError);
   });
 });
 
@@ -80,32 +87,24 @@ describe('refresh', () => {
       email: EMAIL,
       password: PASSWORD,
     });
-    if (!loginResponse.authorized) {
-      // The if is so that ts understands it is the success response
-      throw new Error('We expected the user to be authorized.');
-    }
 
     const response = await client.refresh({
       token: loginResponse.refreshToken ?? '',
     });
 
-    expect(response.success).toBe(true);
-    if (response.success) {
-      // We explicitly check it, so that TS also knows that that success === true.
-      expect(response.accessToken).toBeDefined();
-    }
+    expect(response.accessToken).toBeDefined();
+    expect(response.refreshToken).toBeDefined();
   });
+
   test('invalid access token', async () => {
     const serverInfo = await serverInfoPromise;
     const client = initialize({ baseUrl: serverInfo.prefix, requester });
 
-    const response = await client.refresh({
-      token: 'invalid-token',
-    });
-
-    expect(response.success).toBe(false);
-    // @ts-expect-error Access token is not in the type if success === false
-    expect(response.accessToken).toBeUndefined();
+    await expect(
+      client.refresh({
+        token: 'invalid-token',
+      })
+    ).rejects.toThrow(RefreshError);
   });
 
   describe('reset password', () => {
@@ -127,7 +126,8 @@ describe('refresh', () => {
         token: serverInfo.getResetToken(),
         password: NEW_PASSWORD,
       });
-      expect(response.success).toBe(true);
+      expect(response.accessToken).toBeDefined();
+      expect(response.refreshToken).toBeDefined();
     });
 
     test('attempt a password reset with an incorrect token', async () => {
@@ -135,11 +135,12 @@ describe('refresh', () => {
 
       const client = initialize({ baseUrl: serverInfo.prefix, requester });
 
-      const response = await client.doResetPassword({
-        token: 'xyz',
-        password: PASSWORD,
-      });
-      expect(response.success).toBe(false);
+      await expect(
+        client.doResetPassword({
+          token: 'xyz',
+          password: PASSWORD,
+        })
+      ).rejects.toThrow(DoResetPasswordError);
     });
   });
 
@@ -154,8 +155,7 @@ describe('refresh', () => {
         password: NEW_PASSWORD,
       });
 
-      expect(loginResponse.authorized).toBe(true);
-      const accessToken = loginResponse.authorized ? loginResponse.accessToken : '';
+      const { accessToken } = loginResponse;
 
       const response = await client.changePassword({
         accessToken,
@@ -164,11 +164,8 @@ describe('refresh', () => {
         newPassword: PASSWORD,
       });
 
-      expect(response.success).toBe(true);
-      if (response.success) {
-        // The if is so that TS understand that it is the success type of response.
-        expect(response.accessToken).toBeDefined();
-      }
+      expect(response.accessToken).toBeDefined();
+      expect(response.refreshToken).toBeDefined();
     });
 
     test('invalid password', async () => {
@@ -181,20 +178,22 @@ describe('refresh', () => {
         password: PASSWORD,
       });
 
-      expect(loginResponse.authorized).toBe(true);
-      const accessToken = loginResponse.authorized ? loginResponse.accessToken : '';
+      const { accessToken } = loginResponse;
 
-      const response = await client.changePassword({
-        accessToken,
-        email: EMAIL,
-        password: 'i am invalid',
-        newPassword: PASSWORD,
-      });
-
-      expect(response.success).toBe(false);
-      if (!response.success) {
-        // The if is so that TS understand that it is the success type of response.
-        expect(response.reason).toEqual('INVALID_PASSWORD');
+      try {
+        await client.changePassword({
+          accessToken,
+          email: EMAIL,
+          password: 'i am invalid',
+          newPassword: PASSWORD,
+        });
+        expect(false).toBeTruthy(); // We should never get here, error should be thrown.
+      } catch (error) {
+        expect(error).toBeInstanceOf(ChangePasswordError);
+        if (error instanceof ChangePasswordError) {
+          // so that TS understands it is this error type.
+          expect(error.reason).toEqual('INVALID_PASSWORD');
+        }
       }
     });
 
@@ -202,17 +201,20 @@ describe('refresh', () => {
       const serverInfo = await serverInfoPromise;
       const client = initialize({ baseUrl: serverInfo.prefix, requester });
 
-      const response = await client.changePassword({
-        accessToken: 'invalid-access-token',
-        email: EMAIL,
-        password: PASSWORD,
-        newPassword: NEW_PASSWORD,
-      });
-
-      expect(response.success).toBe(false);
-      if (!response.success) {
-        // The if is so that TS understand that it is the success type of response.
-        expect(response.reason).toEqual('INVALID_TOKEN');
+      try {
+        await client.changePassword({
+          accessToken: 'invalid-access-token',
+          email: EMAIL,
+          password: PASSWORD,
+          newPassword: NEW_PASSWORD,
+        });
+        expect(false).toBeTruthy(); // We should never get here, error should be thrown.
+      } catch (error) {
+        expect(error).toBeInstanceOf(ChangePasswordError);
+        if (error instanceof ChangePasswordError) {
+          // so that TS understands it is this error type.
+          expect(error.reason).toEqual('INVALID_TOKEN');
+        }
       }
     });
   });
@@ -238,11 +240,18 @@ describe('magic-login', () => {
     const response = await client.magicLogin({
       identifier: serverInfo.getMagicLinkIdentifier(),
     });
-    expect(response.authorized).toBe(true);
-    if (response.authorized) {
-      // the if is so that typescript understands it is the success response
-      expect(response.accessToken).toBeDefined();
-      expect(response.refreshToken).toBeDefined();
-    }
+    expect(response.accessToken).toBeDefined();
+    expect(response.refreshToken).toBeDefined();
+  });
+
+  test('invalid-token', async () => {
+    const serverInfo = await serverInfoPromise;
+    const client = initialize({ baseUrl: serverInfo.prefix, requester });
+
+    await expect(
+      client.magicLogin({
+        identifier: 'really-invalid-token',
+      })
+    ).rejects.toThrow(MagicLoginError);
   });
 });
