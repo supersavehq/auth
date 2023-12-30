@@ -64,8 +64,8 @@ export const magicLogin = (superSave: SuperSave, config: Config) =>
     debug('Updating user %s lastLogin timestamp %s.', user.id, user.lastLogin);
     await userRepository.update(user);
 
-    if (config.hooks?.magicLink) {
-      void config.hooks.magicLink(user);
+    if (config.hooks?.magicLogin) {
+      void config.hooks.magicLogin(user);
     }
 
     // Remove the magic link token after it has been used.

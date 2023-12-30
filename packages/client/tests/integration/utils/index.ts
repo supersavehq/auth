@@ -30,7 +30,7 @@ export async function getServer() {
         },
       },
       {
-        type: 'magic-link',
+        type: 'magic-login',
         sendMagicIdentifier(_user, identifier) {
           magicLinkIdentifier = identifier;
         },

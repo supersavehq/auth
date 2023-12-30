@@ -32,7 +32,7 @@ export function initialize(options: Options): Client {
     changePassword: requests.changePassword(baseUrl, requester),
     requestResetPassword: requests.requestResetPassword(baseUrl, requester),
     doResetPassword: requests.doResetPassword(baseUrl, requester),
-    requestMagicLogin: requests.requestMagicLink(baseUrl, requester),
+    requestMagicLogin: requests.requestMagicLogin(baseUrl, requester),
     magicLogin: requests.magicLogin(baseUrl, requester),
   };
 }
