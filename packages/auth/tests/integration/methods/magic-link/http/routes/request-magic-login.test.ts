@@ -25,7 +25,7 @@ describe('request magic login', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
-      methods: [{ type: 'magic-link', sendMagicIdentifier }],
+      methods: [{ type: 'magic-login', sendMagicIdentifier }],
     });
     const { router } = auth;
     authStop = auth.stop;
@@ -50,7 +50,7 @@ describe('request magic login', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
-      methods: [{ type: 'magic-link', sendMagicIdentifier }],
+      methods: [{ type: 'magic-login', sendMagicIdentifier }],
     });
     const { router } = auth;
     authStop = auth.stop;
@@ -80,10 +80,10 @@ describe('request magic login', () => {
 
     const config: PartialConfig = {
       tokenSecret: 'secure',
-      methods: [{ type: 'magic-link', sendMagicIdentifier }],
+      methods: [{ type: 'magic-login', sendMagicIdentifier }],
     };
     if (hook) {
-      config.hooks = { requestMagicLink: hook };
+      config.hooks = { requestMagicLogin: hook };
     }
     const auth = await superSaveAuth(superSave, config);
     const { router } = auth;

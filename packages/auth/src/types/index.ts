@@ -33,7 +33,7 @@ export type AuthMethodLocalPassword = {
 };
 
 export type AuthMethodMagicLink = {
-  type: 'magic-link';
+  type: 'magic-login';
   sendMagicIdentifier: (user: User, identifier: string, expires: Date) => Promise<void> | void;
   magicLoginExpiration?: number;
 };
@@ -60,8 +60,8 @@ export type Config<T extends User = User> = {
     changePassword?: (user: T) => void | Promise<void>;
     requestResetPassword?: (user: T, identifier: string, expires: Date) => void | Promise<void>;
     doResetPassword?: (user: T) => void | Promise<void>;
-    requestMagicLink?: (user: T, identifier: string, expires: Date) => void | Promise<void>;
-    magicLink?: (user: T) => void | Promise<void>;
+    requestMagicLogin?: (user: T, identifier: string, expires: Date) => void | Promise<void>;
+    magicLogin?: (user: T) => void | Promise<void>;
   };
   methods: AuthMethod[];
   rateLimit:

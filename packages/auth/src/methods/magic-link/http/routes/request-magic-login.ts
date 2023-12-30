@@ -64,8 +64,8 @@ export const requestMagicLogin = (superSave: SuperSave, config: Config, authConf
     const outputIdentifier = `${magicLink.id}${IDENTIFIER_SEPARATOR}${identifier.toString('hex')}`;
 
     await authConfig.sendMagicIdentifier(user, outputIdentifier, expiration);
-    if (config.hooks?.requestMagicLink) {
-      void config.hooks.requestMagicLink(user, outputIdentifier, expiration);
+    if (config.hooks?.requestMagicLogin) {
+      void config.hooks.requestMagicLogin(user, outputIdentifier, expiration);
     }
 
     res.status(201).end();

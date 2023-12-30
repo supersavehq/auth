@@ -25,7 +25,7 @@ describe('perform a magic login', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
-      methods: [{ type: 'magic-link', sendMagicIdentifier }],
+      methods: [{ type: 'magic-login', sendMagicIdentifier }],
     });
     const { router } = auth;
     authStop = auth.stop;
@@ -46,7 +46,7 @@ describe('perform a magic login', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
-      methods: [{ type: 'magic-link', sendMagicIdentifier }],
+      methods: [{ type: 'magic-login', sendMagicIdentifier }],
     });
     const { router } = auth;
     authStop = auth.stop;
@@ -67,7 +67,7 @@ describe('perform a magic login', () => {
 
     const auth = await superSaveAuth(superSave, {
       tokenSecret: 'secure',
-      methods: [{ type: 'magic-link', sendMagicIdentifier }],
+      methods: [{ type: 'magic-login', sendMagicIdentifier }],
     });
     const { router } = auth;
     authStop = auth.stop;
@@ -91,7 +91,7 @@ describe('perform a magic login', () => {
       tokenSecret: 'secure',
       methods: [
         {
-          type: 'magic-link',
+          type: 'magic-login',
           sendMagicIdentifier: (_user, identifier) => {
             generatedIdentifier = identifier;
           },
@@ -143,7 +143,7 @@ describe('perform a magic login', () => {
       tokenSecret: 'secure',
       methods: [
         {
-          type: 'magic-link',
+          type: 'magic-login',
           sendMagicIdentifier: (_user, identifier) => {
             generatedIdentifier = identifier;
           },
@@ -195,7 +195,7 @@ describe('perform a magic login', () => {
       tokenSecret: 'secure',
       methods: [
         {
-          type: 'magic-link',
+          type: 'magic-login',
           sendMagicIdentifier: (_user, identifier) => {
             generatedIdentifier = identifier;
           },
