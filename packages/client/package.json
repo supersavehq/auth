@@ -33,7 +33,7 @@
     "format": "prettier --write src tests && eslint --ext=js,jsx,ts,tsx --fix src tests"
   },
   "devDependencies": {
-    "@supersave/auth": "^1.0.0",
+    "@supersave/auth": "^2.0.0",
     "@types/express": "^4.17.14",
     "@types/jest": "^28.1.6",
     "@types/jest-when": "^3.5.2",
