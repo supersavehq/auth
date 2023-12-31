@@ -1,9 +1,0 @@
-src
-docker-compose.yml
-.prettierrc
-tsconfig.json
-.editorconfig
-tests
-jest.config.cjs
-.github
-test.html

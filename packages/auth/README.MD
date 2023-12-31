@@ -75,7 +75,7 @@ The configurations options are:
 | securedEndpoints       | No       | RegExp[]                 | []                 | The opposite of `notSecuredEndpoints`, any paths that match will require a valid Bearer token.                                                     |
 | hooks                  | No       | object                   | {}                 | Functions that are invoked when a specific trigger takes place within this package. See below for more information.                                |
 | methods                | Yes      | AuthMethod[]             |                    | This is a list of configured authentication methods that are enabled. See [AuthMethods](#AuthMethods) below. At least 1 is required to be present. |
-| rateLimit              | false    | false \| RateLimitConfig |                    | See the section on rate limiting below.                                                                                                            |
+| rateLimit              | No       | false \| RateLimitConfig |                    | See the section on rate limiting below.                                                                                                            |
 
 If both `securedEndpoints` and `notSecuredEndpoints` are set, all paths are treated as secure endpoints.
 
@@ -375,7 +375,6 @@ export type MagicLoginResponseFailure = {
 - include the collection name in the logging in the hooks
 - return user information on login and refresh
 - return expiration information on login and refresh
-- Option to reset refresh token on refresh
 - typings on addCollection
 - logout endpoint
 - Registration: Username validation / password length / strength
