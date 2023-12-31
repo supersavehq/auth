@@ -1,6 +1,6 @@
 {
   "name": "@supersave/auth-client",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "author": "daangemist",
   "type": "module",
   "keywords": [
@@ -45,5 +45,8 @@
     "supersave": "^0.14.2",
     "ts-jest": "^29.1.1",
     "typescript": "^4.7.4"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

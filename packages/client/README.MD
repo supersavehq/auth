@@ -12,7 +12,7 @@ It can be used in both a browser or a server environment.
 ### Initialization
 
 In the initialization of the client you need to tell it where to find the auth server. This is the
-endpoint to the website + the path to the `supersave/auth` library that you configured server-side.
+endpoint to the website + the path to the `supersave/auth` library that you configured server-side. It's also possible to leave out the domain and just use the absolute path to the api (_e.g. `/api/auth`_).
 
     import { initialize } from '@supersave/auth-client';
 
@@ -51,7 +51,7 @@ export type RefreshRequest = {
   refreshToken: 'yyy';
 }
 
-// A RefreshError is thrown if the request afils.
+// A RefreshError is thrown if the request fails.
 ```
 
 ### Register
@@ -77,16 +77,17 @@ export type RegistrationRequest = {
 ```
 
 The `accessToken` can be used to request data for this user. This is not in
-the scope of this client. The `refreshToken` can be used to obtain a new
+the scope of this client. You can use any HTTP library to request data, just include the `Authorization` header as explained earlier.
+The `refreshToken` can be used to obtain a new
 accessToken when the current one expires. This is done using the [Refresh](#Refresh) call.
 
 ### Login
 
 Scope: `local-password` auth method.
 
-Obtain an accessToken and a refreshToken for an existing user.
+Obtain an accessToken and a refreshToken for an existing user by using a username and password.
 
-```javascript
+```typescript
 const response = await client.login({ email: 'test@example.com', password: '123456' });
 
 // Request

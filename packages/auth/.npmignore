@@ -1,9 +1,11 @@
 tests
 src
 .prettierrc
-jest.config.js
+jest.config.cjs
 tsconfig.json
+tsconfig.eslint.json
 docker-compose.yml
 .docker
 .editorconfig
 .github
+.eslintrc.cjs
