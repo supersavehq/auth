@@ -60,7 +60,7 @@ export type RefreshToken = {
 export type RegistrationRequest = {
   email: string;
   password: string;
-  name?: string;
+  name?: string | undefined;
 };
 export type RegistrationResponseFailed = {
   success: false;

@@ -23,7 +23,7 @@ export const refresh = (superSave: SuperSave, config: Config) =>
     const tokenParts = token.split(TOKEN_SEPARATOR);
     if (tokenParts.length !== 2) {
       debug('The provided token is invalid, it did not split into 2 parts.');
-      res.status(400).json({ message: 'Invalid token provided in request.' });
+      res.status(401).json({ message: 'Invalid token provided in request.' });
       return;
     }
 

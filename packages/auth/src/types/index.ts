@@ -44,7 +44,10 @@ export type RateLimit = {
   keyGenerator?: (req: Request) => string | Promise<string>;
 };
 
-export type PartialConfig = Partial<Omit<Config, 'tokenSecret'>> & { tokenSecret: Config['tokenSecret'] };
+export type PartialConfig = Partial<Omit<Config, 'tokenSecret' | 'methods'>> & {
+  tokenSecret: Config['tokenSecret'];
+  methods: Config['methods'];
+};
 
 export type Config<T extends User = User> = {
   tokenSecret: string;
