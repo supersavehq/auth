@@ -7,7 +7,7 @@ export const refresh =
     const rsp = await requester.post<RefreshDataResponse, RefreshRequest>(`${prefix}/refresh`, request);
 
     if (rsp.statusCode !== 200 || rsp.data.data.success === false) {
-      throw new RefreshError('Unable to refresh token.');
+      throw new RefreshError(rsp.statusCode, 'Unable to refresh token.');
     }
 
     const { data } = rsp.data;

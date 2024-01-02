@@ -10,10 +10,10 @@ export const doResetPassword =
     );
 
     if (rsp.statusCode !== 200) {
-      throw new DoResetPasswordError('UNKNOWN');
+      throw new DoResetPasswordError('UNKNOWN', rsp.statusCode, 'Unknown.');
     }
     if (rsp.data.data.success === false) {
-      throw new DoResetPasswordError(rsp.data.data.reason);
+      throw new DoResetPasswordError(rsp.data.data.reason, rsp.statusCode, 'Failed with reason.');
     }
 
     return {
