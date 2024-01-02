@@ -7,10 +7,10 @@ export const register =
     const rsp = await requester.post<RegistrationDataResponse, RegistrationRequest>(`${baseUrl}/register`, request);
 
     if (rsp.statusCode !== 200) {
-      throw new RegistrationError('Error registering user.');
+      throw new RegistrationError(rsp.statusCode, 'Error registering user.');
     }
     if (rsp.data.data.success === false) {
-      throw new RegistrationError(rsp.data.data.message);
+      throw new RegistrationError(rsp.statusCode, rsp.data.data.message);
     }
 
     const { data } = rsp.data;

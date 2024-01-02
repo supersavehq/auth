@@ -7,6 +7,6 @@ export const requestResetPassword =
     const rsp = await requester.post<void, RequestResetPasswordRequest>(`${baseUrl}/reset-password`, request);
 
     if (rsp.statusCode !== 201) {
-      throw new RequestResetPasswordError('Could not successfully request a reset password.');
+      throw new RequestResetPasswordError(rsp.statusCode, 'Could not successfully request a reset password.');
     }
   };

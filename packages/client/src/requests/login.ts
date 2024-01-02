@@ -9,7 +9,7 @@ export const login =
     if (rsp.statusCode === 200) {
       const { data } = rsp.data;
       if (!data.authorized) {
-        throw new LoginError('Unauthorized.');
+        throw new LoginError(rsp.statusCode, 'Unauthorized.');
       }
       return {
         accessToken: data.accessToken,
@@ -17,5 +17,5 @@ export const login =
       };
     }
 
-    throw new LoginError('Failed to login in.');
+    throw new LoginError(rsp.statusCode, 'Failed to login in.');
   };

@@ -7,7 +7,7 @@ export const magicLogin =
     const rsp = await requester.post<MagicLoginResponse, MagicLoginRequest>(`${baseUrl}/magic-login`, request);
 
     if (rsp.statusCode !== 200 || rsp.data.data.authorized === false) {
-      throw new MagicLoginError('Unable to login using magic link.');
+      throw new MagicLoginError(rsp.statusCode, 'Unable to login using magic link.');
     }
 
     return {

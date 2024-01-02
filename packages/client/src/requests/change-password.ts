@@ -19,11 +19,11 @@ export const changePassword =
     );
 
     if (rsp.statusCode === 400) {
-      throw new ChangePasswordError('INVALID_PASSWORD');
+      throw new ChangePasswordError('INVALID_PASSWORD', rsp.statusCode, 'Invalid password was provided.');
     } else if (rsp.statusCode === 401) {
-      throw new ChangePasswordError('INVALID_TOKEN');
+      throw new ChangePasswordError('INVALID_TOKEN', rsp.statusCode, 'Invalid accessToken was provided.');
     } else if (rsp.statusCode !== 200 || rsp.data.data.success === false) {
-      throw new ChangePasswordError('UNKNOWN');
+      throw new ChangePasswordError('UNKNOWN', rsp.statusCode, 'Unknown.');
     }
 
     return {
