@@ -1,6 +1,6 @@
 {
   "name": "@supersave/auth",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "A library that enables developers to easily build authenticated endpoints for a supersave powered API/backend.",
   "main": "build/index.js",
   "scripts": {
@@ -18,9 +18,6 @@
     "audit": "npm audit --audit-level=high --omit=dev"
   },
   "prettier": "eslint-config-daangemist/.prettierrc",
-  "engines": {
-    "node": "^16.13 || ^18.10"
-  },
   "types": "./build/index.d.ts",
   "repository": {
     "type": "git",
