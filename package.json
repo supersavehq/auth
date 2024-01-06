@@ -2,6 +2,7 @@
   "workspaces": [
     "./packages/*"
   ],
+  "private": true,
   "scripts": {
     "build": "nx run-many --target=build",
     "audit": "nx run-many --target=audit",
