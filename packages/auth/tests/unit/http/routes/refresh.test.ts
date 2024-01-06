@@ -1,4 +1,4 @@
-import add from 'date-fns/add';
+import { add } from 'date-fns';
 import type { Request, Response } from 'express';
 import { when } from 'jest-when';
 import { generateTokens } from '../../../../src/auth';
