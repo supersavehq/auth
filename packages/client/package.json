@@ -1,6 +1,6 @@
 {
   "name": "@supersave/auth-client",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "author": "daangemist",
   "type": "module",
   "keywords": [
@@ -14,7 +14,9 @@
   "source": "src/index.ts",
   "exports": {
     "require": "./dist/auth-client.cjs",
-    "default": "./dist/auth-client.modern.js"
+    "default": "./dist/auth-client.modern.js",
+    "import": "./dist/auth-client.modern.js",
+    "types": "./dist/index.d.ts"
   },
   "main": "./dist/auth-client.cjs",
   "module": "./dist/auth-client.module.js",
